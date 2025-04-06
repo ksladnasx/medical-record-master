@@ -62,7 +62,7 @@ export default defineComponent({
 
                 filteredTemplates.value = res.data.data.data
                 console.log(filteredTemplates.value)
-                totalPages.value = res.data.totalPage
+                totalPages.value = res.data.data.totalPage
             } catch (e) {
                 console.error(e)
             }

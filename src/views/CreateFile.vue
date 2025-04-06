@@ -37,13 +37,13 @@ const loadFirstPage = async () => {
   if (options.value.length > 0 || loading.value) return
 
   loading.value = true
-  options.value = await fetchData(1)
+  options.value = await fetchData(10)
   currentPage.value = 2
   loading.value = false
   console.log(options.value)
 }
 
-// 6. 滚动处理（网页6/网页7）
+// 6. 滚动处`理
 const handleScroll = async (e: Event) => {
   const target = e.target as HTMLSelectElement
   const { scrollTop, scrollHeight, clientHeight } = target
