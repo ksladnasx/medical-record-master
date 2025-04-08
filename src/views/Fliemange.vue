@@ -7,7 +7,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from "../store";
 import formatDate from "../tools/formatDate";
 import axiosService from "../utils/axios-test"
-import { Delete, Edit, Search, Share, Upload } from '@element-plus/icons-vue'
+import {  Search } from '@element-plus/icons-vue'
 const userId = ref()
 
 export default defineComponent({
@@ -767,6 +767,10 @@ td {
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
+    /* display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start; */
 }
 
 .action-menu.show {

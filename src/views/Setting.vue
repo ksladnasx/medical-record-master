@@ -189,13 +189,13 @@ const uploadAvatar = async () => {
         <div class="info-section">
             <div class="setting-item">
                 <label>用户名</label>
-                <input v-if="isEditing" v-model="userInfo.userName">
+                <el-input v-if="isEditing" v-model="userInfo.userName" clearable/>
                 <span v-else>{{ userInfo.userName }}</span>
             </div>
 
             <div class="setting-item">
                 <label>所属组织</label>
-                <input v-if="isEditing" v-model="userInfo.organization">
+                <el-input v-if="isEditing" v-model="userInfo.organization" clearable/>
                 <span v-else>{{ userInfo.organization }}</span>
             </div>
 

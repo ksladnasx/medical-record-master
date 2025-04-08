@@ -51,10 +51,7 @@ const handleRegister = () => {
   router.push('/register');
 };
 
-// 跳转到找回密码页面
-const handleForgotPassword = () => {
-  router.push('/forgot-password');
-};
+
 
 const isHovered = ref(false);
 const isHovereds = ref(false);
@@ -124,7 +121,7 @@ const isHovereds = ref(false);
 
 
         <div class="login-tips">
-          <p>提示： 用户名 doctor@126.com，密码 password</p>
+          <!-- <p>提示： 用户名 doctor@126.com，密码 password</p> -->
         </div>
       </div>
     </div>

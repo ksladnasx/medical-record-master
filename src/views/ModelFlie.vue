@@ -2,7 +2,7 @@
 import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter } from 'vue-router';
 import { TemplateFile } from "../types/types";
-import { Delete, Edit, Search, Share, Upload } from '@element-plus/icons-vue'
+import { Search } from '@element-plus/icons-vue'
 import { useUserStore } from "../store";
 import formatDate from "../tools/formatDate";
 import { ElMessage, ElMessageBox } from 'element-plus';

@@ -128,27 +128,27 @@ onBeforeUnmount(() => {
       <h2>创建文件</h2>
 
       <div class="form-group">
-        <label>模板类别</label>
+        <label style="display: flex;">模板类别<div class="help-icon" title="可以无类别">?</div></label>
         <div class="select-wrapper">
-          <select v-model="templateId" @click="loadFirstPage" @scroll.passive="handleScroll" class="scroll-select">
-            <option value=""> </option>
-            <option v-for="item in options" :key="item.id" :value="item.id">
+          <el-select v-model="templateId" @click="loadFirstPage" @scroll.passive="handleScroll" class="scroll-select">
+            <el-option value=""> </el-option>
+            <el-option v-for="item in options" :key="item.id" :value="item.id">
               {{ item.templateName }}
-            </option>
-            <option v-if="loading" disabled>加载中...（已加载{{ options.length }}条）</option>
-          </select>
-          <div class="help-icon" title="可以无类别">?</div>
+            </el-option>
+            <el-option v-if="loading" disabled>加载中...（已加载{{ options.length }}条）</el-option>
+          </el-select>
+          
         </div>
       </div>
 
       <div class="form-group">
         <label>文件名称</label>
-        <input type="text" v-model="fileName" placeholder="请输入文件名称" />
+        <el-input type="text" v-model="fileName" placeholder="请输入文件名称" clearable/>
       </div>
 
 
 
-      <button style="align-items: center;" @click="handleSubmit">创建</button>
+      <el-button style="display: flex; align-items: center;justify-self: right;" @click="handleSubmit" size="large">创建</el-button>
     </div>
   </div>
 </template>
