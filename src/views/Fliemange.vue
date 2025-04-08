@@ -415,19 +415,19 @@ export default defineComponent({
             <div class="filter-group">
                 <div class="filter-item">
                     <label>ID:</label>
-                    <input type="text" v-model="filters.id" placeholder="输入ID">
+                    <el-input type="text" v-model="filters.id" placeholder="输入ID" clearable/>
                 </div>
                 <div class="filter-item">
                     <label>文档名称:</label>
-                    <input type="text" v-model="filters.filename" placeholder="输入文件名称">
+                    <el-input type="text" v-model="filters.filename" placeholder="输入文件名称" clearable/>
                 </div>
                 <div class="filter-item">
                     <label>关联模板:</label>
-                    <input type="text" v-model="filters.templateName" placeholder="输入文件名称">
+                    <el-input type="text" v-model="filters.templateName" placeholder="输入文件名称" clearable/>
                 </div>
                 <div class="filter-item">
                     <label>作者:</label>
-                    <input type="text" v-model="filters.author" placeholder="输入作者">
+                    <el-input type="text" v-model="filters.author" placeholder="输入作者" clearable/>
                 </div>
                 <div class="filter-item">
                     <label>修改日期:</label>

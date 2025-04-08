@@ -80,7 +80,7 @@ export default defineComponent({
             if (fuzzyTemplateName && fuzzyTemplateName != "") configData.fuzzyTemplateName = fuzzyTemplateName;
             if (authorName && authorName != '') configData.authorName = authorName;
             if (category && category != '') configData.category = category;
-            if (updateTimeStart) configData.timeRange = {beginTimeMs:updateTimeStart, endTimeMs: updateTimeStart+86400000};
+            if (updateTimeStart) configData.timeRange = { beginTimeMs: updateTimeStart, endTimeMs: updateTimeStart + 86400000 };
 
             console.log(configData)
 
@@ -478,27 +478,33 @@ export default defineComponent({
             <div class="filter-group">
                 <div class="filter-item">
                     <label>ID:</label>
-                    <input type="text" v-model="filters.id" placeholder="输入ID">
+                    <el-input type="text" v-model="filters.id" placeholder="输入ID" clearable />
                 </div>
                 <div class="filter-item">
                     <label>模板名称:</label>
-                    <input type="text" v-model="filters.templateName" placeholder="输入模板名称">
+                    <el-input type="text" v-model="filters.templateName" placeholder="输入模板名称" clearable />
                 </div>
                 <div class="filter-item">
                     <label>作者:</label>
-                    <input type="text" v-model="filters.author" placeholder="输入作者">
+                    <el-input type="text" v-model="filters.author" placeholder="输入作者" clearable />
                 </div>
                 <div class="filter-item">
                     <label>类别:</label>
-                    <select v-model="filters.category">
+                    <!-- <select v-model="filters.category">
                         <option value="">全部</option>
                         <option value="a类">a类</option>
                         <option value="b类">b类</option>
-                    </select>
+                    </select> -->
+                    <el-select v-model="filters.category" clearable placeholder="Select">
+                        <!-- <el-option label="全部" value="" /> -->
+                        <el-option label="a类" value="a类" />
+                        <el-option label="b类" value="b类" />
+                    </el-select>
                 </div>
                 <div class="filter-item">
                     <label>修改日期:</label>
-                    <input type="date" v-model="filters.modifyDate">
+                    <el-input type="date" v-model="filters.modifyDate" clearable />
+                   
                 </div>
 
 
@@ -547,7 +553,7 @@ a类模板提交json，上传该模板的模板有严格的格式校验；">?</s
                                 {{ formatDate(template.updateTime).split(" ")[2] }}
                             </div>
                         </td>
-                        <td >
+                        <td>
                             <button style="align-items: center; " class="goto" @click="goToFileManage(template)">
                                 <svg t="1740899969657" class="icon" viewBox="0 0 1024 1024" version="1.1"
                                     xmlns="http://www.w3.org/2000/svg" p-id="4149" width="200" height="200">
@@ -612,7 +618,7 @@ a类模板提交json，上传该模板的模板有严格的格式校验；">?</s
         </div>
 
         <!-- 底部的那个页面跳转按钮 -->
-        <div class="pagination" >
+        <div class="pagination">
             <button :disabled="currentPage === 1" @click="prevPage">&lt;</button>
             <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage }">{{
                 showPage }}</button>

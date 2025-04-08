@@ -12,6 +12,9 @@ import CreateFile from '../views/CreateFile.vue';
 import Wrong from '../views/Wrong.vue';
 import Editor from '../views/Editor.vue';
 import FileEditor from '../views/FileEditor.vue';
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
+NProgress.configure({ showSpinner: false });
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -98,10 +101,12 @@ router.beforeEach((to:any, _from:any, next:any) => {
   const publicRoutes = ['Login', 'Register', 'ForgotPassword','Email',"Wrong"]; //这里必须填路由的name
   
   if (!publicRoutes.includes(to.name as string) && !isAuthenticated) {
+    NProgress.start();
     next({ name: 'Login' });
   } else {
+    NProgress.start();
     next();
   }
 });
-
+router.afterEach(() => NProgress.done());
 export default router;

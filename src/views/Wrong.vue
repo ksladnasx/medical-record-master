@@ -14,9 +14,9 @@
       <button @click="router.back()" class="home-button" style="margin-left: 1rem;">
         <span>返回上一页</span>
       </button>
-      <button @click="test" class="home-button" style="margin-left: 1rem;">
+      <!-- <button @click="test" class="home-button" style="margin-left: 1rem;">
         <span>获取用户信息请求测试</span>
-      </button>
+      </button> -->
     </div>
   </div>
 </template>

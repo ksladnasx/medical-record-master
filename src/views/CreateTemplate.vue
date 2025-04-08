@@ -4,7 +4,14 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import axios from 'axios';
 import axiosService from "../utils/axios-test"
-
+import {
+  Check,
+  Delete,
+  Edit,
+  Message,
+  Search,
+  Star,
+} from '@element-plus/icons-vue'
 const router = useRouter();
 
 // 响应式数据
@@ -177,9 +184,10 @@ const removeFile = (index: number) => {
               <div v-for="(file, index) in fileList" :key="index" class="file-item">
                 <span class="file-name">{{ file.name }}</span>
                 <span class="file-size">{{ formatSize(file.size) }}</span>
-                <button @click.stop="removeFile(index)" class="remove-btn" title="移除文件">
+                <!-- <button >
                   ×
-                </button>
+                </button> -->
+                <el-button type="danger" :icon="Delete" circle @click.stop="removeFile(index)" class="remove-btn" title="移除文件"/>
               </div>
             </div>
           </transition>

@@ -9,7 +9,6 @@ import { useUserStore } from './store'
 import axiosService from './utils/axios-test'
 
 
-
 // 创建Vue应用实例
 const app = createApp(App)
 // 创建Pinia实例

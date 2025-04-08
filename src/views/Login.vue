@@ -5,6 +5,7 @@ import { useUserStore } from '../store';
 import { ElMessage } from 'element-plus';
 
 
+
 // 路由器实例
 const router = useRouter();
 // 用户存储
@@ -38,6 +39,7 @@ const handleLogin = async () => {
     ElMessage.error('登录失败，请重试');
   } finally {
     loading.value = false;
+    isHovered.value = false
   }
 };
 
@@ -53,6 +55,10 @@ const handleRegister = () => {
 const handleForgotPassword = () => {
   router.push('/forgot-password');
 };
+
+const isHovered = ref(false);
+const isHovereds = ref(false);
+// 获取元素（需类型断言为 HTMLElement）
 </script>
 
 <template>
@@ -64,32 +70,56 @@ const handleForgotPassword = () => {
       </div>
       <div class="login-form">
         <div class="form-item">
-          <span style="display: inline-block;padding-right: 2%;">邮箱✉️:</span>
-          <input type="text" v-model="userName" placeholder="请输入邮箱" />
+
+          <el-input type="text" v-model="userName" size="small" placeholder="请输入邮箱" clearable="true" />
         </div>
 
         <div class="form-item">
-          <span style="display: inline-block;padding-right: 2%;">密码🔒:</span>
-          <input type="password" v-model="password" placeholder="请输入密码" @keyup.enter="handleLogin" />
+          <el-input v-model="password" type="password" placeholder="请输入密码" show-password @keyup.enter="handleLogin"
+            size="small" clearable="true">
+            <!-- <input type="password" v-model="password" placeholder="请输入密码" @keyup.enter="handleLogin" /> -->
+          </el-input>
+        </div>
+       
+        <div class="forgot-password-link">
+          <router-link to="/forgot-password" >忘记密码？</router-link>
         </div>
 
 
-        <div class="form-btn">
-          <button :disabled="loading" @click="handleLogin" class="login-btn">
-            <span class="btn-text">{{ loading ? '登录中...' : '登录' }}</span>
-          </button>
-        </div>
+        <div class="actions">
+          <div>
+            <button v-if="!loading" :disabled="loading" @click="handleLogin" @mouseenter="isHovered = true"
+              @mouseleave="isHovered = false" :class="{ 'login-btn': isHovered }">
+              <span class="btn-text">{{ loading ? '登录中...' : '登录' }}</span>
+            </button>
+            <el-button type="primary" class="login-btn" loading v-if="loading">
+              <template #loading>
+                <div class="custom-loading">
+                  <svg class="circular" viewBox="-10, -10, 50, 50">
+                    <path class="path" d="
+            M 30 15
+            L 28 17
+            M 25.61 25.61
+            A 15 15, 0, 0, 1, 15 30
+            A 15 15, 0, 1, 1, 27.99 7.5
+            L 15 15
+          " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)" />
+                  </svg>
+                </div>
+              </template>
+              登录中
+            </el-button>
+          </div>
+          <div>
+            <button @click="handleRegister" @mouseenter="isHovereds = true" @mouseleave="isHovereds = false"
+              :class="{ 'login-btn': isHovereds }">
+              <span class="btn-text">注册</span>
+            </button>
+          </div>
 
-        <div class="register-btn">
-          <button @click="handleRegister" style="width: 80px; height: 35px; font-size: 12px;">
-            <span class="btn-text">注册</span>
-          </button>
-        </div>
 
-        <div class="find-btn">
-          <button @click="handleForgotPassword" style="width:80px; height: 35px;font-size: 12px;">
-            <span class="btn-text">找回密码</span>
-          </button>
+
+
         </div>
 
 
@@ -198,18 +228,35 @@ p {
 
 .form-btn {
   width: 520px;
-margin-top: 50px;
-margin-left: 100px;
+  margin-top: 50px;
+  margin-left: 100px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  margin-top: 20px;
 }
 
 .form-item {
   margin-bottom: 24px;
   animation: fadeInUp 0.8s ease;
   animation-delay: calc(0.4s + var(--index, 0) * 0.1s);
-  animation-fill-mode: both;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
 }
-
-.form-item:nth-child(1) {
+.forgot-password-link{
+  /*  text-align: right; 将其置于盒子右端 */
+  text-align: right; 
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #1890ff;
+  cursor: pointer;
+}
+/* .form-item:nth-child(1) {
   --index: 1;
 }
 
@@ -219,7 +266,7 @@ margin-left: 100px;
 
 .form-item:nth-child(3) {
   --index: 3;
-}
+} */
 
 @keyframes fadeInUp {
   from {
@@ -311,6 +358,14 @@ margin-left: 100px;
   box-shadow: none;
 }
 
+.other-btn {
+  width: 250px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-top: 20px;
+}
+
 .btn-text {
   position: relative;
   z-index: 1;
@@ -331,6 +386,27 @@ margin-left: 100px;
   animation-delay: 0.7s;
   animation-fill-mode: both;
 
+
+}
+
+.el-button .custom-loading .circular {
+  margin-right: 6px;
+  width: 18px;
+  height: 18px;
+  animation: loading-rotate 2s linear infinite;
+}
+
+.el-button .custom-loading .circular .path {
+  animation: loading-dash 1.5s ease-in-out infinite;
+  stroke-dasharray: 90, 150;
+  stroke-dashoffset: 0;
+  stroke-width: 2;
+  stroke: var(--el-button-text-color);
+  stroke-linecap: round;
+}
+
+.el-input {
+  height: 40px;
 
 }
 </style>

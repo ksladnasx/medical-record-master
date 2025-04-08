@@ -6,6 +6,7 @@ import {ref } from 'vue';
 
 
 
+
 // 路由器实例
 const router = useRouter();
 // 用户存储
@@ -25,16 +26,19 @@ const shouldShow = ref(true);
 
     <!-- 只在非登录/注册/找回密码页面显示侧边栏 -->
     <Sidebar v-if="shouldShowSidebar() && shouldShow" />
-    
-    <button @click="() => shouldShow = !shouldShow" style="height: 100px; width: 30px;" v-if="shouldShowSidebar()">{{
-      shouldShow == true ? "<" : ">" }}</button>
+    <el-button @click="() => shouldShow = !shouldShow" style="height: 100px; width: 30px;" v-if="shouldShowSidebar()">{{
+      shouldShow == true ? "<" : ">" }}</el-button>
+    <!-- <button @click="() => shouldShow = !shouldShow" style="height: 100px; width: 30px;" v-if="shouldShowSidebar()">{{
+      shouldShow == true ? "<" : ">" }}</button> -->
 
     <div class="main-content" :class="{ 'with-sidebar': shouldShowSidebar() }">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
+          
         </transition>
       </router-view>
+      
     </div>
   </div>
 </template>

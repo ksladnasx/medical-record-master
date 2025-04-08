@@ -122,3 +122,8 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+
+#nprogress .bar {
+  height: 3px !important; /* 调整高度 */
+}
