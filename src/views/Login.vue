@@ -80,9 +80,9 @@ const isHovereds = ref(false);
             <!-- <input type="password" v-model="password" placeholder="请输入密码" @keyup.enter="handleLogin" /> -->
           </el-input>
         </div>
-       
+
         <div class="forgot-password-link">
-          <router-link to="/forgot-password" >忘记密码？</router-link>
+          <router-link to="/forgot-password"><span class="forgot-password-link-fonts">忘记密码？</span></router-link>
         </div>
 
 
@@ -248,14 +248,27 @@ p {
   display: flex;
   flex-direction: row;
 }
-.forgot-password-link{
+
+.forgot-password-link {
   /*  text-align: right; 将其置于盒子右端 */
-  text-align: right; 
+  text-align: right;
   margin-bottom: 20px;
   font-size: 14px;
-  color: #1890ff;
+  color: #ed644c;
   cursor: pointer;
 }
+.forgot-password-link-fonts{
+  color: #4cb7ed;
+  font-size: 14px;
+  cursor: pointer;
+}
+.forgot-password-link-fonts:hover {
+  text-decoration: underline;
+  color: #ed644c;
+  transition: color 0.3s;
+}
+
+
 /* .form-item:nth-child(1) {
   --index: 1;
 }

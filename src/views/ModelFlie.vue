@@ -117,6 +117,9 @@ export default defineComponent({
         }
 
         const applyFilters = () => {
+            if (isEmpty()) {
+                updatePage(currentPage.value, pageSize)
+            }
             if (filters.value.id || filters.value.author || filters.value.category || filters.value.modifyDate || filters.value.templateName) {
                 console.log(filters.value)
                 updatePage(currentPage.value, pageSize, Number(filters.value.id), filters.value.templateName, filters.value.author, filters.value.category, customParse(filters.value.modifyDate))
@@ -124,6 +127,14 @@ export default defineComponent({
 
             currentPage.value = 1;
         };
+
+        const isEmpty = ()=>{
+            if (filters.value.id == '' && filters.value.author == '' && filters.value.category== '' && filters.value.templateName == '' && filters.value.modifyDate == '') {
+                return true
+            }else{
+                return false
+            }
+        }
 
         const goToCreateTemplate = () => {
             router.push('/create-template');

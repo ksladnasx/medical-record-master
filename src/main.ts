@@ -7,6 +7,11 @@ import App from './App.vue'
 import router from './router'
 import { useUserStore } from './store'
 import axiosService from './utils/axios-test'
+// main.ts
+
+// 如果您正在使用CDN引入，请删除下面一行。
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+
 
 
 // 创建Vue应用实例
@@ -21,6 +26,9 @@ app.use(ElementPlus)
 // 挂载到全局属性
 app.config.globalProperties.$http = axiosService
 
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+    app.component(key, component)
+  }
 // 如果localStorage中有用户信息，则初始化用户
 const userStore = useUserStore()
 userStore.updatUser()

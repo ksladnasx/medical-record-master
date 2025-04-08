@@ -7,7 +7,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from "../store";
 import formatDate from "../tools/formatDate";
 import axiosService from "../utils/axios-test"
-
+import { Delete, Edit, Search, Share, Upload } from '@element-plus/icons-vue'
 const userId = ref()
 
 export default defineComponent({
@@ -85,7 +85,7 @@ export default defineComponent({
 
         const applyFilters = () => {
             // console.log(filters.value)
-            if(filters.value.id == '' && filters.value.author == '' && filters.value.filename == '' && filters.value.templateName == '' && filters.value.modifyDate == '') {
+            if (isEmpty()) {
                 updatePage(currentPage.value, pageSize)
             }
             if (filters.value.id || filters.value.author || filters.value.filename || filters.value.templateName || filters.value.modifyDate) {
@@ -97,8 +97,15 @@ export default defineComponent({
             // filteredFiles.value = result;
             currentPage.value = 1;
         };
-
+        const isEmpty = ()=>{
+            if (filters.value.id == '' && filters.value.author == '' && filters.value.filename == '' && filters.value.templateName == '' && filters.value.modifyDate == '') {
+                return true
+            }else{
+                return false
+            }
+        }
         const resetFilters = () => {
+            
             filters.value = {
                 id: '',
                 filename: '',
@@ -335,7 +342,7 @@ export default defineComponent({
             if (fuzzyFileName && fuzzyFileName != "") configData.fuzzyFileName = fuzzyFileName;
             if (authorName && authorName != '') configData.authorName = authorName;
             if (fuzzyTemplateName && fuzzyTemplateName != '') configData.fuzzyTemplateName = fuzzyTemplateName;
-            if (updateTimeStart) configData.timeRange = {beginTimeMs:updateTimeStart, endTimeMs: updateTimeStart+86400000};
+            if (updateTimeStart) configData.timeRange = { beginTimeMs: updateTimeStart, endTimeMs: updateTimeStart + 86400000 };
             console.log("请求的数据：")
             console.log(configData)
 
@@ -396,6 +403,8 @@ export default defineComponent({
             prevPage,
             nextPage,
             userId,
+            // 图标导入了之后一定要记得从script标签中暴露出来
+            Search
         };
     },
 });
@@ -415,28 +424,29 @@ export default defineComponent({
             <div class="filter-group">
                 <div class="filter-item">
                     <label>ID:</label>
-                    <el-input type="text" v-model="filters.id" placeholder="输入ID" clearable/>
+                    <el-input type="text" v-model="filters.id" placeholder="输入ID" clearable />
                 </div>
                 <div class="filter-item">
                     <label>文档名称:</label>
-                    <el-input type="text" v-model="filters.filename" placeholder="输入文件名称" clearable/>
+                    <el-input type="text" v-model="filters.filename" placeholder="输入文件名称" clearable />
                 </div>
                 <div class="filter-item">
                     <label>关联模板:</label>
-                    <el-input type="text" v-model="filters.templateName" placeholder="输入文件名称" clearable/>
+                    <el-input type="text" v-model="filters.templateName" placeholder="输入文件名称" clearable />
                 </div>
                 <div class="filter-item">
                     <label>作者:</label>
-                    <el-input type="text" v-model="filters.author" placeholder="输入作者" clearable/>
+                    <el-input type="text" v-model="filters.author" placeholder="输入作者" clearable />
                 </div>
                 <div class="filter-item">
                     <label>修改日期:</label>
-                    <input type="date" v-model="filters.modifyDate">
+                    <el-input type="date" v-model="filters.modifyDate" clearable />
                 </div>
 
                 <div class="filter-item filter-actions">
-                    <button class="btn query" @click="applyFilters">查询</button>
-                    <button class="btn reset" @click="resetFilters">
+                    <el-button type="primary" :icon="Search" @click="applyFilters">查询</el-button>
+                    <!-- <el-button class="btn query" @click="applyFilters">查询</el-button> -->
+                    <el-button class="btn reset" @click="resetFilters">
                         <svg t="1740899657675" class="icon" viewBox="0 0 1024 1024" version="1.1"
                             xmlns="http://www.w3.org/2000/svg" p-id="1471" width="200" height="200">
                             <path
@@ -447,7 +457,7 @@ export default defineComponent({
                                 fill="#2F54EB" p-id="1473"></path>
                         </svg>
                         重置
-                    </button>
+                    </el-button>
                 </div>
             </div>
         </div>
@@ -516,7 +526,7 @@ export default defineComponent({
             </table>
         </div>
 
-        <div class="pagination" >
+        <div class="pagination">
             <button :disabled="currentPage === 1" @click="prevPage">&lt;</button>
             <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage }">{{
                 showPage }}</button>
