@@ -1,8 +1,9 @@
+import { ref } from 'vue';
 import { MyFile, TemplateFile } from '../types/types';
 export default function testdata() {
 
 
-  const templateFiles: TemplateFile[] = [
+  const templateFiles =ref<TemplateFile[]>([
     {
       "id": 205198387, "templateName": "陆军军医大学附属医院病历", "authorName": "张康", "category": "a类", "updateTime": 1724641445000,
       authorId: 23232323
@@ -24,7 +25,7 @@ export default function testdata() {
       authorId: 0
     }
     
-  ]
+  ])
 
   const fileData: MyFile[] = [
     {

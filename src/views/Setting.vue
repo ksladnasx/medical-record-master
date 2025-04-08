@@ -201,8 +201,10 @@ const uploadAvatar = async () => {
 
             <div class="setting-item">
                 <label>邮箱</label>
-                <span>{{ userInfo.email }}</span>
+                <div style="display: flex;flex-direction: row;justify-content: space-between;">
+                    <span>{{ userInfo.email }}</span>
                 <div class="help-icon" title="邮箱用于绑定账户，无法修改">?</div>
+                </div>
             </div>
         </div>
 

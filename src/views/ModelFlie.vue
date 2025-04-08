@@ -2,11 +2,12 @@
 import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter } from 'vue-router';
 import { TemplateFile } from "../types/types";
-
+import { Delete, Edit, Search, Share, Upload } from '@element-plus/icons-vue'
 import { useUserStore } from "../store";
 import formatDate from "../tools/formatDate";
 import { ElMessage, ElMessageBox } from 'element-plus';
 import axiosService from "../utils/axios-test"
+import templateFiles from '../data/data'
 // import mammoth from 'mammoth';
 const userId = ref()
 
@@ -26,6 +27,7 @@ export default defineComponent({
         });
 
         const filteredTemplates = ref<TemplateFile[]>([]);
+            filteredTemplates.value = templateFiles().templateFiles.value
         const currentPage = ref(1);
         const showPage = ref(1);
         const pageSize = 10;
@@ -466,7 +468,7 @@ export default defineComponent({
             viewFileDetails,
             deleteFile,
             downloadFile,
-            renameFile,
+            renameFile,Search
         };
     },
 });
@@ -520,8 +522,9 @@ export default defineComponent({
 
 
                 <div class="filter-item filter-actions">
-                    <button class="btn query" @click="applyFilters">查询</button>
-                    <button class="btn reset" @click="resetFilters">
+                    <el-button type="primary" :icon="Search" @click="applyFilters">查询</el-button>
+                    <!-- <button class="btn query" @click="applyFilters">查询</button> -->
+                    <el-button class="btn reset" @click="resetFilters">
                         <svg t="1740899657675" class="icon" viewBox="0 0 1024 1024" version="1.1"
                             xmlns="http://www.w3.org/2000/svg" p-id="1471" width="200" height="200">
                             <path
@@ -531,21 +534,19 @@ export default defineComponent({
                                 d="M482.657 214.747l79.355 79.356c10.74 10.74 10.74 28.151 0 38.89-10.74 10.74-28.151 10.74-38.89 0l-85.573-85.572c-18.045-18.045-18.045-47.302 0-65.348l85.766-85.766c10.74-10.74 28.152-10.74 38.891 0 10.74 10.74 10.74 28.151 0 38.89l-79.55 79.55z"
                                 fill="#2F54EB" p-id="1473"></path>
                         </svg>
-                        重置</button>
+                        重置</el-button>
                 </div>
             </div>
         </div>
 
         <div class="table-container">
-            <table>
+            <table >
                 <thead>
-                    <tr>
+                    <tr >
                         <th>ID</th>
                         <th>模板</th>
                         <th>作者</th>
-                        <th style="position: relative;top: 10px;">分类<span class="help-icon"
-                                style="position: relative;left: 120px;bottom: 30px; " title="a类为超级模板，用户不能操作该模板；
-a类模板提交json，上传该模板的模板有严格的格式校验；">?</span></th>
+                        <th style="display: flex;flex-direction: row;justify-content: center;">分类<div class="help-icon" title="邮箱用于绑定账户，无法修改">?</div></th>
                         <th>修改时间</th>
                     </tr>
                 </thead>
@@ -674,9 +675,9 @@ button.active {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    /* overflow-y: auto; */
     /* 启用垂直滚动条 */
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 .create-template-btn {
@@ -994,7 +995,10 @@ td {
 .rename-icon::before {
     content: "✎";
 }
-
+.download-icon::before {
+    content: "⤓";
+    font-weight: 900;
+}
 /* 背景色过渡增强 */
 .action-item[style*="background-color:orangered"] {
     background-color: orangered !important;
