@@ -12,7 +12,9 @@ import axiosService from '../../utils/axios-test' // 导入配置好的axios实�
 export const useUserStore = defineStore('user', {
   state: () => ({
     userInfo: null as Ref<UserInfo> | null,
-    userId: -1
+    userId: -1,
+    //全局侧边栏展示管理
+    shouldShow:true
   }),
 
   actions: {

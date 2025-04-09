@@ -8,7 +8,7 @@ import formatDate from "../tools/formatDate";
 import { ElMessage, ElMessageBox } from 'element-plus';
 import axiosService from "../utils/axios-test"
 import templateFiles from '../data/data'
-// import mammoth from 'mammoth';
+import {DArrowRight} from "@element-plus/icons-vue"
 const userId = ref()
 
 
@@ -468,7 +468,7 @@ export default defineComponent({
             viewFileDetails,
             deleteFile,
             downloadFile,
-            renameFile,Search
+            renameFile,Search,useUserStore,DArrowRight
         };
     },
 });
@@ -480,11 +480,12 @@ export default defineComponent({
 <template>
     <div class="file-management">
         <header class="header">
+            
             <h2>模板模板</h2>
             <p>现存模板如下</p>
 
             <button class="create-template-btn" @click="goToCreateTemplate">创建模板</button>
-            <hr style="max-width: 1200px; ">
+            <hr style="max-width: 2200px; ">
         </header>
 
         <div class="filter-container">
@@ -548,11 +549,19 @@ export default defineComponent({
                         <th>作者</th>
                         <th style="display: flex;flex-direction: row;justify-content: center;">分类<div class="help-icon" title="邮箱用于绑定账户，无法修改">?</div></th>
                         <th>修改时间</th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-if="paginatedTemplates.length === 0">
-                        <td colspan="5" class="no-data">暂无相关数据</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td >暂无相关数据</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                     </tr>
                     <tr v-else v-for="template in paginatedTemplates" :key="template.id">
                         <td>{{ template.id }}</td>
@@ -577,7 +586,7 @@ export default defineComponent({
                         </td>
                         <td class="action-cell">
                             <div class="act">
-                                <button @click="showMenu(template.id)">
+                                <button class="goto" @click="showMenu(template.id)">
                                     <svg t="1740900353387" class="icon" viewBox="0 0 1024 1024" version="1.1"
                                         xmlns="http://www.w3.org/2000/svg" p-id="12391" width="200" height="200">
                                         <path
@@ -661,48 +670,87 @@ button.active {
     /* 白色文字 */
 }
 
-/* 图标基础样式 */
 .icon {
     width: 20px;
     height: 20px;
     padding: 0;
 }
 
-/* 模板管理区域整体布局 */
 .file-management {
-    /* min-height: 10000vh; */
+    min-height: 100vh;
     padding: 2vw;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    /* overflow-y: auto; */
-    /* 启用垂直滚动条 */
+    align-items: center;
+    
     /* overflow: hidden; */
 }
 
-.create-template-btn {
-    background: #409eff;
-    color: white;
-    position: relative;
-    left: 88%;
-    border: none;
-    padding: 1.5vh 2.5vh;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s;
-
-}
-
-/* 页面头部样式 */
 .header {
     width: 100%;
     margin-bottom: 4vh;
     position: relative;
-    left: 2vw;
+    left: 1vw;
     max-width: 1400px;
+    padding: 24px 32px;
 }
 
-/* 筛选容器基础样式 */
+h2 {
+    font-size: 28px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #1a73e8 0%, #64b5f6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+p {
+    color: #7c8ea9;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.create-template-btn {
+    background: linear-gradient(135deg, #1a73e8 0%, #64b5f6 100%);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.25);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: absolute;
+    right: 32px;
+    top: 24px;
+}
+
+.create-file-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(26, 115, 232, 0.35);
+    background: linear-gradient(135deg, #4ca3eb 100%);
+}
+
+.create-file-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 8px rgba(26, 115, 232, 0.25);
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg,
+            rgba(26, 115, 232, 0.1) 0%,
+            rgba(26, 115, 232, 0.3) 50%,
+            rgba(26, 115, 232, 0.1) 100%);
+    margin: 24px 0;
+}
+
 .filter-container {
     padding: 2vw;
     width: 100%;
@@ -710,20 +758,19 @@ button.active {
     margin: 0 auto;
     /* box-sizing: border-box; */
     position: relative;
-    left: 6vw;
+    left: 5vw;
 }
 
-/* 筛选组布局 */
 .filter-group {
     position: relative;
-    right: 100px;
+    right: 10vh;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 12px;
     margin-bottom: 6px;
+    flex-grow: 1;
 }
 
-/* 筛选项布局 */
 .filter-item {
     position: relative;
     display: flex;
@@ -731,13 +778,12 @@ button.active {
     /* gap: 4px; */
 }
 
-/* 标签样式 */
 label {
+    /* width: 60px; */
     font-size: 12px;
     color: #606266;
 }
 
-/* 输入框和选择框基础样式 */
 input,
 select {
     padding: 8px 10px;
@@ -747,7 +793,6 @@ select {
     width: 200px;
 }
 
-/* 筛选操作按钮区域 */
 .filter-actions {
     width: 100vh;
     height: 5vh;
@@ -756,53 +801,47 @@ select {
     top: 1.3vh;
     flex-direction: row;
     align-items: center;
+    flex-shrink: 0;
+    gap: 8px;
+    margin-left: 12px;
 }
 
-/* 按钮基础样式 */
 .btn {
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
     min-width: 80px;
-    transition: all 0.2s;
 }
 
-/* 查询按钮样式 */
 .btn.query {
     background: #409eff;
     color: white;
     border: none;
 }
 
-/* 重置按钮样式 */
 .btn.reset {
     background: #f4f4f5;
     color: #606266;
     border: 1px solid #d3d4d6;
 }
 
-/* 按钮悬停效果 */
 .btn:hover {
     opacity: 0.9;
 }
 
-/* 表格容器样式 */
 .table-container {
     border: 1px solid #ebeef5;
     border-radius: 8px;
-    /* overflow: visible;    */
 
-    /* 允许菜单溢出 */
+    /* overflow: hidden; */
 }
 
-/* 表格基础样式 */
 table {
     width: 100%;
     border-collapse: collapse;
 }
 
-/* 表头样式 */
 th {
     background: #f5f7fa;
     color: #909399;
@@ -811,7 +850,6 @@ th {
     text-align: center;
 }
 
-/* 表格单元格样式 */
 td {
     width: 250px;
     padding-bottom: 6px;
@@ -821,10 +859,8 @@ td {
     border-top: 1px solid #ebeef5;
     color: #606266;
     text-align: center;
-
 }
 
-/* 分类标签样式 */
 .category-tag {
     display: inline-block;
     padding: 4px 8px;
@@ -834,14 +870,12 @@ td {
     font-size: 12px;
 }
 
-/* 无数据提示样式 */
 .no-data {
     text-align: center;
     padding: 24px;
     color: #909399;
 }
 
-/* 分页组件样式 */
 .pagination {
     display: flex;
     align-items: center;
@@ -850,43 +884,10 @@ td {
     margin-top: 24px;
 }
 
-/* 新增样式 */
-.filter-row {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.filter-group {
-    flex-grow: 1;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-}
-
-.filter-actions {
-    flex-shrink: 0;
-    display: flex;
-    gap: 8px;
-    margin-left: 12px;
-}
-
-/* 添加goto按钮的悬停效果 */
-.goto {
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.goto:hover {
-    transform: scale(1.2);
-}
-
 /* 操作按钮和下拉菜单样式 */
 .action-cell {
     position: relative;
     width: 80px;
-    /* 固定宽度防止错位 */
 }
 
 .act {
@@ -913,110 +914,109 @@ td {
     background: #e0e2e5;
 }
 
-/* 下拉菜单基础样式 */
+.dropdown-icon {
+    font-size: 10px;
+    transition: transform 0.3s;
+}
+
 .action-menu {
     position: absolute;
-    top: 50%;
-    /* 垂直居中 */
-    right: -110px;
-    /* 根据新位置调整 */
+    top: 100px;
+    right: -120px;
     width: 120px;
     background: transparent;
     border-radius: 4px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-    z-index: 10;
-    transform-origin: right center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    transform: translateY(-50%) translateX(20px) scale(0.95);
     opacity: 0;
-    transform: translateX(20px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
-    /* 新增 */
+    /* display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start; */
 }
 
-/* 下拉菜单显示时的动画状态 */
 .action-menu.show {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translateY(-50%) translateX(0) scale(1);
     pointer-events: auto;
-    /* 新增 */
 }
 
-/* 操作项基础样式 */
 .action-item {
     color: white;
     display: flex;
-    align-items: center;
     border-radius: 4px;
+
+    align-items: center;
     padding: 10px 15px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
+    transition: all 0.3s ease;
+    /* margin: 4px 0; */
     gap: 8px;
 }
 
-/* 操作项悬停动画 */
 .action-item:hover {
-    color: #000;
+    color: #000000;
     transform: translateX(6px);
     background: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* 操作项间分隔线 */
-.action-item:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    bottom: -2px;
-    left: 10px;
-    right: 10px;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
+.action-item.delete {
+    color: #f56c6c;
 }
 
-/* 图标动画效果 */
+.action-item.delete:hover {
+    background: #fef0f0;
+}
+
 .action-item i {
-    transition: transform 0.3s ease;
+    margin-right: 8px;
+    font-size: 16px;
 }
 
-.action-item:hover i {
-    transform: scale(1.2);
+/* 新增样式 */
+.filter-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
 }
 
-/* 图标具体样式 */
+/* 图标样式修正 */
+.download-icon::before {
+    content: "⤓";
+    font-weight: 900;
+}
+
+.rename-icon::before {
+    content: "✎";
+}
+
 .delete-icon::before {
     content: "×";
-    font-weight: bold;
+    font-weight: 900;
 }
 
 .view-icon::before {
     content: "👁️";
 }
 
-.rename-icon::before {
-    content: "✎";
+/* tr表示每列 */
+tr:hover {
+    background: #f0f2f5;
+    color: #73a0a5;
+    transition: all 0.3s ease;
 }
-.download-icon::before {
-    content: "⤓";
-    font-weight: 900;
-}
-/* 背景色过渡增强 */
-.action-item[style*="background-color:orangered"] {
-    background-color: orangered !important;
-}
-
-.action-item[style*="background-color:#409eff"] {
-    background-color: #409eff !important;
+.goto {
+    cursor: pointer;
+    background-color: transparent;
+    transition: transform 0.3s ease;
 }
 
-.action-item[style*="background-color:greenyellow"] {
-    background-color: greenyellow !important;
-}
-
-/* 优化图标对齐 */
-.action-item i {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    text-align: center;
+.goto:hover {
+    background-color: #ffffff;
+    transform: scale(1.2);
 }
 </style>

@@ -7,7 +7,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from "../store";
 import formatDate from "../tools/formatDate";
 import axiosService from "../utils/axios-test"
-import {  Search } from '@element-plus/icons-vue'
+import { Search } from '@element-plus/icons-vue'
 const userId = ref()
 
 export default defineComponent({
@@ -97,15 +97,15 @@ export default defineComponent({
             // filteredFiles.value = result;
             currentPage.value = 1;
         };
-        const isEmpty = ()=>{
+        const isEmpty = () => {
             if (filters.value.id == '' && filters.value.author == '' && filters.value.filename == '' && filters.value.templateName == '' && filters.value.modifyDate == '') {
                 return true
-            }else{
+            } else {
                 return false
             }
         }
         const resetFilters = () => {
-            
+
             filters.value = {
                 id: '',
                 filename: '',
@@ -417,7 +417,7 @@ export default defineComponent({
             <p>我的文件列表</p>
 
             <button class="create-file-btn" @click="gotoFileCreate">创建文件</button>
-            <hr style="max-width: 1200px; ">
+            <hr style="max-width: 2200px; ">
         </header>
 
         <div class="filter-container">
@@ -471,12 +471,17 @@ export default defineComponent({
                         <th>模板</th>
                         <th>作者</th>
                         <th>修改时间</th>
-                        <th></th>
+                        <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-if="paginatedTemplates.length === 0">
-                        <td colspan="6" class="no-data">暂无相关数据</td>
+                        <td></td>
+                        <td></td>
+                        <td >暂无相关数据</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                     </tr>
                     <tr v-else v-for="template in paginatedTemplates" :key="template.id">
                         <td>{{ template.id }}</td>
@@ -565,6 +570,8 @@ button.active {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    
     /* overflow: hidden; */
 }
 
@@ -572,24 +579,64 @@ button.active {
     width: 100%;
     margin-bottom: 4vh;
     position: relative;
-    left: 2vw;
+    left: 1vw;
     max-width: 1400px;
+    padding: 24px 32px;
+}
+
+h2 {
+    font-size: 28px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #1a73e8 0%, #64b5f6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+p {
+    color: #7c8ea9;
+    font-size: 14px;
+    margin-bottom: 24px;
 }
 
 .create-file-btn {
-    background: #409eff;
+    background: linear-gradient(135deg, #1a73e8 0%, #64b5f6 100%);
     color: white;
-    position: relative;
-    left: 88%;
     border: none;
-    padding: 1.5vh 2.5vh;
-    border-radius: 4px;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.25);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: absolute;
+    right: 32px;
+    top: 24px;
 }
 
 .create-file-btn:hover {
-    background: #66b1ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(26, 115, 232, 0.35);
+    background: linear-gradient(135deg, #4ca3eb 100%);
+}
+
+.create-file-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 8px rgba(26, 115, 232, 0.25);
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg,
+            rgba(26, 115, 232, 0.1) 0%,
+            rgba(26, 115, 232, 0.3) 50%,
+            rgba(26, 115, 232, 0.1) 100%);
+    margin: 24px 0;
 }
 
 .filter-container {
@@ -609,6 +656,7 @@ button.active {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 12px;
     margin-bottom: 6px;
+    flex-grow: 1;
 }
 
 .filter-item {
@@ -641,6 +689,9 @@ select {
     top: 1.3vh;
     flex-direction: row;
     align-items: center;
+    flex-shrink: 0;
+    gap: 8px;
+    margin-left: 12px;
 }
 
 .btn {
@@ -648,6 +699,7 @@ select {
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
+    min-width: 80px;
 }
 
 .btn.query {
@@ -687,10 +739,11 @@ th {
 }
 
 td {
+    width: 250px;
     padding-bottom: 6px;
     padding-top: 6px;
-    padding-left: 30px;
-    padding-right: 30px;
+    padding-left: 20px;
+    padding-right: 20px;
     border-top: 1px solid #ebeef5;
     color: #606266;
     text-align: center;
@@ -819,25 +872,6 @@ td {
     justify-content: space-between;
 }
 
-.filter-group {
-    flex-grow: 1;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-}
-
-.filter-actions {
-    flex-shrink: 0;
-    display: flex;
-    gap: 8px;
-    margin-left: 12px;
-}
-
-/* 调整原有按钮间距 */
-.btn {
-    min-width: 80px;
-}
-
 /* 图标样式修正 */
 .download-icon::before {
     content: "⤓";
@@ -855,5 +889,12 @@ td {
 
 .view-icon::before {
     content: "👁️";
+}
+
+/* tr表示每列 */
+tr:hover {
+    background: #f0f2f5;
+    color: #73a0a5;
+    transition: all 0.3s ease;
 }
 </style>
