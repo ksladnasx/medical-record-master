@@ -689,7 +689,7 @@ button.active {
 
 .header {
     width: 100%;
-    margin-bottom: 4vh;
+    margin-bottom:-2vh;
     position: relative;
     left: 1vw;
     max-width: 1400px;

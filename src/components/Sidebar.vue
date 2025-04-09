@@ -42,7 +42,7 @@ const hiddenSidebar = () => {
 
 <template>
   <div v-if="!route.path.includes('/Editor') && !route.path.includes('/FileEditor')" class="sidebar">
-    <div class="logo">
+    <!-- <div class="logo">
       <h2>电子病历撰写系统</h2>
       
       <span class="hidden-sidebar" @click="hiddenSidebar">
@@ -50,16 +50,16 @@ const hiddenSidebar = () => {
         <DArrowLeft />
       </el-icon>
       </span>
-    </div>
+    </div> -->
 
-    <div class="user-express">
+    <!-- <div class="user-express">
       <div class="main-avatar">
-        <img :src=src alt="User Avatar" class="icon" @click="navigateToProfile" />
+        <img src="https://img.ixintu.com/download/jpg/201911/e25b904bc42a74d7d77aed81e66d772c.jpg!con" alt="User Avatar" class="icon" @click="navigateToProfile" />
       </div>
       <p></p>
-      <div style="width: 86px; text-align: center;">{{ userStore.$state.userInfo?.userName }}
+      <div style="width: 86px; text-align: center;">
       </div>
-    </div>
+    </div> -->
 
 
     <div class="menu">
@@ -71,6 +71,13 @@ const hiddenSidebar = () => {
         <span>模板管理</span>
       </div>
 
+      <div class="menu-item" @click="navigateTo('/create-template')"
+        :class="{ active: route.path === '/create-template' }">
+        <el-icon>
+          <Unlock />
+        </el-icon>
+        <span>创建模板</span>
+      </div>
       <div class="menu-item" @click="navigateTo('/filemanage')" :class="{ active: route.path === '/filemanage' }">
         <el-icon>
           <Document />
@@ -78,13 +85,18 @@ const hiddenSidebar = () => {
         <span>文件管理</span>
       </div>
 
+      <div class="menu-item" @click="navigateTo('/createfile')" :class="{ active: route.path === '/createfile' }">
+        <el-icon>
+          <Unlock />
+        </el-icon>
+        <span>创建文件</span>
+      </div>
       <div class="menu-item" @click="navigateTo('/permissions')" :class="{ active: route.path === '/permissions' }">
         <el-icon>
           <Unlock />
         </el-icon>
         <span>权限管理</span>
       </div>
-
       <div class="menu-item" @click="navigateTo('/setting')" :class="{ active: route.path === '/setting' }">
         <el-icon>
           <User />
@@ -93,7 +105,7 @@ const hiddenSidebar = () => {
       </div>
     </div>
 
-    <div class="user-info">
+    <!-- <div class="user-info">
       <div class="avatar">
         <img :src=src alt="User Avatar" @click="navigateToProfile" title="个人信息" />
       </div>
@@ -114,7 +126,7 @@ const hiddenSidebar = () => {
           </svg>
         </i>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -138,11 +150,12 @@ const hiddenSidebar = () => {
   border-bottom: 1px solid #1f2d3d;
   background-color: #263445;
 }
-.hidden-sidebar{
+
+.hidden-sidebar {
   color: #ffffff;
-  border-radius: 50%; 
+  border-radius: 50%;
   /* background-color: #4ec8e0; */
-  cursor: pointer; 
+  cursor: pointer;
   /* cursor: pointer设置鼠标挪动到此的时候改变鼠标状态 */
   font-size: 28px;
   padding-top: 2px;
@@ -153,12 +166,14 @@ const hiddenSidebar = () => {
   left: 15px;
   transition: all 0.3s ease;
 }
+
 .hidden-sidebar:hover {
   border: #1890ff 1px solid;
   background-color: rgba(255, 255, 255, 0.1);
   color: #ff6b6b;
   transform: scale(1.2);
 }
+
 .logo h2 {
   margin: 0;
   font-size: 18px;
@@ -394,8 +409,8 @@ const hiddenSidebar = () => {
 
 .sidebar {
   width: clamp(80px, 20vw, 220px);
-  height: 100vh;
-  background: linear-gradient(to top, #1a73e8, #64b5f6);
+  height: auto;
+  /* background: linear-gradient(to top, #1a73e8, #64b5f6); */
   /* 从下往上的蓝色渐变 */
   color: #fff;
   display: flex;
@@ -429,6 +444,7 @@ const hiddenSidebar = () => {
   background: rgba(255, 255, 255, 0.2);
   /* 调整选中效果 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: rgb(236, 81, 42);
   /* 添加阴影增强层次 */
 }
 </style>

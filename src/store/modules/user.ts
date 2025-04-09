@@ -14,7 +14,8 @@ export const useUserStore = defineStore('user', {
     userInfo: null as Ref<UserInfo> | null,
     userId: -1,
     //全局侧边栏展示管理
-    shouldShow:true
+    shouldShow:true,
+    shouldShowTopbar:true,
   }),
 
   actions: {

@@ -3,8 +3,7 @@ import { useRouter } from 'vue-router';
 // import { useUserStore } from './store';
 import Sidebar from './components/Sidebar.vue';
 import { useUserStore } from './store';
-import { DArrowRight } from '@element-plus/icons-vue';
-
+import Topbar from './components/Topbar.vue';
 
 
 // 路由器实例
@@ -21,20 +20,19 @@ const shouldShowSidebar = () => {
 </script>
 
 <template>
+  <Topbar v-if="shouldShowSidebar() && useUserStore().shouldShowTopbar" />
   <div class="app-container">
 
     <!-- 只在非登录/注册/找回密码页面显示侧边栏 -->
     <Sidebar v-if="shouldShowSidebar() && useUserStore().shouldShow" />
-    
-    
+
+
     <div class="main-content" :class="{ 'with-sidebar': shouldShowSidebar() }">
-      <div v-if="!useUserStore().shouldShow" class="showSiderbar">
-        <el-button @click="()=>useUserStore().shouldShow = true" style="height: 50px;"><el-icon>
-            <DArrowRight />
-          </el-icon></el-button>
-      </div>
-      <router-view v-slot="{ Component }">
-        
+
+      <div v-if="! useUserStore().shouldShowTopbar" style="display: flex; position: relative;justify-self: center;min-height: 20vh;"><el-button @click="() => useUserStore().shouldShowTopbar = true"><el-icon>
+            <ArrowDownBold />
+          </el-icon></el-button></div>
+      <router-view v-slot="{ Component }" style="flex: 1;">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
 
@@ -66,23 +64,28 @@ button:focus {
   height: 100vh;
   overflow: visible;
   display: flex;
+  flex: 1;
 
 }
-.showSiderbar{
- position: relative;
- /* top: 15vh;
+
+.showSiderbar {
+  position: relative;
+  /* top: 15vh;
  padding-right: 100px; */
 }
+
 .main-content {
   flex: 1;
-  overflow-y: auto;
+  /* overflow-y: auto; */
   transition: all 0.3s ease;
+  height: auto;
  
+
 }
 
-.main-content.with-sidebar {
+/* .main-content.with-sidebar {
   width: calc(100% - 250px);
-}
+} */
 
 /* 过渡效果 */
 .fade-enter-active,
@@ -116,8 +119,8 @@ button:focus {
 }
 
 .main-content {
-  flex: 1;
-  overflow-y: auto;
+  height: 100vh;
+  /* overflow-y: auto; */
   transition: all 0.3s ease;
   /* 新增背景色设置 */
   background: linear-gradient(to right,
