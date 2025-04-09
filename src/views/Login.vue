@@ -38,8 +38,8 @@ const handleLogin = async () => {
   } catch (error) {
     ElMessage.error('登录失败，请重试');
   } finally {
-    loading.value = false;
-    isHovered.value = false
+    loading.value = false;  //判断鼠标是否挪到登录按钮
+    isHovered.value = false //判断鼠标是否挪到注册按钮
   }
 };
 
@@ -67,14 +67,21 @@ const isHovereds = ref(false);
       </div>
       <div class="login-form">
         <div class="form-item">
-
-          <el-input type="text" v-model="userName" size="small" placeholder="请输入邮箱" clearable="true" />
+          <el-input type="text" v-model="userName" size="small" placeholder="请输入邮箱" clearable="true">
+            <template #prefix>
+              <el-icon size="large"><Message /></el-icon>
+              <!-- prefix 和 suffix 命名的插槽 -->
+            </template>
+          </el-input>
         </div>
 
         <div class="form-item">
           <el-input v-model="password" type="password" placeholder="请输入密码" show-password @keyup.enter="handleLogin"
             size="small" clearable="true">
-            <!-- <input type="password" v-model="password" placeholder="请输入密码" @keyup.enter="handleLogin" /> -->
+            <template #prefix>
+              <el-icon size="large"><Lock /></el-icon>
+              <!-- prefix 和 suffix 命名的插槽 -->
+            </template>
           </el-input>
         </div>
 
@@ -83,11 +90,11 @@ const isHovereds = ref(false);
         </div>
 
 
-        <div class="actions">
+        <div class="actions" :class="{ 'action2': isHovered, 'action3': isHovereds }">
           <div>
             <button v-if="!loading" :disabled="loading" @click="handleLogin" @mouseenter="isHovered = true"
               @mouseleave="isHovered = false" :class="{ 'login-btn': isHovered }">
-              <span class="btn-text">{{ loading ? '登录中...' : '登录' }}</span>
+              <span class="btn-text">登录</span>
             </button>
             <el-button type="primary" class="login-btn" loading v-if="loading">
               <template #loading>
@@ -104,7 +111,7 @@ const isHovereds = ref(false);
                   </svg>
                 </div>
               </template>
-              登录中
+              登录中...
             </el-button>
           </div>
           <div>
@@ -113,10 +120,6 @@ const isHovereds = ref(false);
               <span class="btn-text">注册</span>
             </button>
           </div>
-
-
-
-
         </div>
 
 
@@ -237,6 +240,14 @@ p {
   margin-top: 20px;
 }
 
+.action2 {
+  margin-left: 90px;
+}
+
+.action3 {
+  margin-right: 90px;
+}
+
 .form-item {
   margin-bottom: 24px;
   animation: fadeInUp 0.8s ease;
@@ -254,11 +265,13 @@ p {
   color: #ed644c;
   cursor: pointer;
 }
-.forgot-password-link-fonts{
+
+.forgot-password-link-fonts {
   color: #4cb7ed;
   font-size: 14px;
   cursor: pointer;
 }
+
 .forgot-password-link-fonts:hover {
   text-decoration: underline;
   color: #ed644c;
