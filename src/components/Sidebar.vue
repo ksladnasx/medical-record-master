@@ -74,6 +74,8 @@ const navigateTo = (path: string) => {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
 }
 
 /* 侧边栏主容器 */
