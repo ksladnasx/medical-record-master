@@ -437,9 +437,7 @@ export default defineComponent({
                     <div class="header-stats">
                         <div class="stat-card">
                             <div class="stat-icon">
-                                <el-icon>
-                                    <Files />
-                                </el-icon>
+                                <el-icon><DocumentCopy /></el-icon>
                             </div>
                             <div class="stat-content">
                                 <div class="stat-value">{{ totalPages * pageSize }}</div>

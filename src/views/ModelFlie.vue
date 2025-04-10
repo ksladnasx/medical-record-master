@@ -9,7 +9,6 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import axiosService from "../utils/axios-test"
 import templateFiles from '../data/data'
 import { DArrowRight } from "@element-plus/icons-vue"
-import { defineConfig } from 'vite';
 const userId = ref()
 
 
