@@ -74,7 +74,7 @@ const hiddenSidebar = () => {
       <div class="menu-item" @click="navigateTo('/create-template')"
         :class="{ active: route.path === '/create-template' }">
         <el-icon>
-          <Unlock />
+          <FolderAdd />
         </el-icon>
         <span>创建模板</span>
       </div>
@@ -87,7 +87,7 @@ const hiddenSidebar = () => {
 
       <div class="menu-item" @click="navigateTo('/createfile')" :class="{ active: route.path === '/createfile' }">
         <el-icon>
-          <Unlock />
+          <DocumentAdd />
         </el-icon>
         <span>创建文件</span>
       </div>

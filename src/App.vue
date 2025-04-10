@@ -1,93 +1,109 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-// import { useUserStore } from './store';
 import Sidebar from './components/Sidebar.vue';
 import { useUserStore } from './store';
 import Topbar from './components/Topbar.vue';
+import { ArrowDownBold } from '@element-plus/icons-vue';
 
-
-// 路由器实例
 const router = useRouter();
-// 用户存储
-// const userStore = useUserStore();
+const userStore = useUserStore();
 
 // 判断当前路由是否需要显示侧边栏
 const shouldShowSidebar = () => {
   const publicRoutes = ['Login', 'Register', 'ForgotPassword', 'Email', 'Wrong', 'Editor', 'FileEditor'];
   return !publicRoutes.includes(router.currentRoute.value.name as string);
 };
-
 </script>
 
 <template>
-  <Topbar v-if="shouldShowSidebar() && useUserStore().shouldShowTopbar" />
-  <div class="app-container">
-
-    <!-- 只在非登录/注册/找回密码页面显示侧边栏 -->
-    <Sidebar v-if="shouldShowSidebar() && useUserStore().shouldShow" />
-
-
-    <div class="main-content" :class="{ 'with-sidebar': shouldShowSidebar() }">
-
-      <div v-if="! useUserStore().shouldShowTopbar" style="display: flex; position: relative;justify-self: center;min-height: 20vh;"><el-button @click="() => useUserStore().shouldShowTopbar = true"><el-icon>
-            <ArrowDownBold />
-          </el-icon></el-button></div>
-      <router-view v-slot="{ Component }" style="flex: 1;">
-        <transition name="fade" mode="out-in">
-          <component :is="Component" />
-
-        </transition>
-      </router-view>
-
+  <div class="app-layout">
+    <!-- 顶部栏 -->
+    <Topbar v-if="shouldShowSidebar() && userStore.shouldShowTopbar" class="topbar" />
+    
+    <div class="content-container">
+      <!-- 侧边栏 -->
+      <Sidebar 
+        v-if="shouldShowSidebar() && userStore.shouldShow" 
+        class="sidebar"
+      />
+      
+      <!-- 主内容区 -->
+      <main class="main-content" :class="{ 'full-width': !(shouldShowSidebar() && userStore.shouldShow) }">
+        <!-- 简洁模式下的顶部栏显示按钮 -->
+        <div 
+          v-if="!userStore.shouldShowTopbar" 
+          class="show-topbar-btn"
+        >
+          <el-button 
+            @click="userStore.shouldShowTopbar = true"
+            type="primary"
+            circle
+          >
+            <el-icon><ArrowDownBold /></el-icon>
+          </el-button>
+        </div>
+        
+        <!-- 路由视图 -->
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
+      </main>
     </div>
   </div>
 </template>
 
-<style>
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+<style scoped>
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
   background-color: #f5f7fa;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-
 }
 
-button:focus {
-  outline: none;
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.app-container {
-  width: 100%;
-  height: 100vh;
-  overflow: visible;
+.content-container {
   display: flex;
   flex: 1;
-
+  min-height: calc(100vh - 60px); /* 减去顶部栏高度 */
 }
 
-.showSiderbar {
-  position: relative;
-  /* top: 15vh;
- padding-right: 100px; */
+.sidebar {
+  flex-shrink: 0;
+  height: calc(100vh - 60px); /* 减去顶部栏高度 */
+  position: sticky;
+  top: 60px; /* 顶部栏高度 */
+  overflow-y: auto;
 }
 
 .main-content {
   flex: 1;
-  /* overflow-y: auto; */
+  min-height: calc(100vh - 60px); /* 减去顶部栏高度 */
+  overflow-y: auto;
+  /* padding: 20px; */
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
   transition: all 0.3s ease;
-  height: auto;
- 
-
 }
 
-/* .main-content.with-sidebar {
-  width: calc(100% - 250px);
-} */
+.main-content.full-width {
+  background: #ffffff;
+}
 
-/* 过渡效果 */
+.show-topbar-btn {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  z-index: 1001;
+}
+
+/* 过渡动画 */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -96,6 +112,34 @@ button:focus {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .content-container {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+  }
+  
+  .main-content {
+    min-height: auto;
+    padding: 15px;
+  }
+}
+</style>
+
+<style>
+/* 全局样式 */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
 }
 
 /* 滚动条样式 */
@@ -110,43 +154,12 @@ button:focus {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c0c4cc;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
+
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #909399;
-}
-
-.main-content {
-  height: 100vh;
-  /* overflow-y: auto; */
-  transition: all 0.3s ease;
-  /* 新增背景色设置 */
-  background: linear-gradient(to right,
-      rgba(245, 247, 250, 0.8) 0%,
-      /* 与侧边栏渐变色衔接 */
-      rgba(245, 247, 250, 1) 250px,
-      /* 渐变终止点与侧边栏宽度匹配 */
-      #ffffff 100%
-      /* 主内容区底色 */
-    );
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
-  /* 增加左侧分割阴影 */
-}
-
-/* 适配侧边栏隐藏状态 */
-.main-content:not(.with-sidebar) {
-  background: #ffffff;
-  /* 纯白背景 */
-  box-shadow: none;
-}
-
-/* 优化过渡动画背景 */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-  background: inherit;
-  /* 保持背景继承 */
 }
 </style>

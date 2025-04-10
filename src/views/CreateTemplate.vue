@@ -4,14 +4,8 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import axios from 'axios';
 import axiosService from "../utils/axios-test"
-import {
-  Check,
-  Delete,
-  Edit,
-  Message,
-  Search,
-  Star,
-} from '@element-plus/icons-vue'
+import { DocumentAdd, Delete, QuestionFilled } from '@element-plus/icons-vue';
+
 const router = useRouter();
 
 // 响应式数据
@@ -20,32 +14,29 @@ const templateType = ref('b类');
 const fileList = ref<File[]>([]);
 const fileInput = ref<HTMLInputElement>();
 const isDragging = ref(false);
-const loading = ref(false); // 加载状态
+const loading = ref(false);
 
 // 文件处理逻辑
-
-
-// 点击上传处理
 const handleFileChange = (event: Event) => {
   const input = event.target as HTMLInputElement;
   handleFile(input.files?.[0]);
-  input.value = ''; // 清空输入以便重复选择相同文件
+  input.value = '';
 };
 
 const handleFile = (file: File | undefined) => {
-
   if (!file) return;
-  if(!file.name.endsWith('.docx')){
-      ElMessage.error('请上传docx格式的文件');
-      // ElMessage.error('文件上传失败，请重试');
-      return;
-    }
-  // 单文件限制：清空已有文件
+
+  if (!file.name.endsWith('.docx')) {
+    ElMessage.error('请上传docx格式的文件');
+    return;
+  }
+
+  // 单文件限制
   if (fileList.value.length >= 1) {
     fileList.value = [];
   }
 
-  // 大小限制（示例添加50MB限制）
+  // 大小限制（50MB）
   const MAX_SIZE = 50 * 1024 * 1024;
   if (file.size > MAX_SIZE) {
     ElMessage.warning('文件大小不能超过50MB');
@@ -55,25 +46,26 @@ const handleFile = (file: File | undefined) => {
   fileList.value.push(file);
 };
 
-// 修改拖拽处理（添加多文件过滤）
 const handleDrop = (e: DragEvent) => {
   isDragging.value = false;
   const files = e.dataTransfer?.files;
   if (files && files.length > 0) {
-    handleFile(files[0]); // 只取第一个文件
+    handleFile(files[0]);
     if (files.length > 1) {
       ElMessage.warning('每次只能上传一个文件');
     }
   }
 };
 
-// 文件大小格式化显示
 const formatSize = (size: number) => {
   const MB = size / (1024 * 1024);
   return MB >= 1 ? `${MB.toFixed(1)} MB` : `${(size / 1024).toFixed(1)} KB`;
 };
 
-// 提交验证
+const removeFile = (index: number) => {
+  fileList.value.splice(index, 1);
+};
+
 // 提交逻辑
 const handleSubmit = async () => {
   if (!templateName.value.trim()) {
@@ -85,11 +77,11 @@ const handleSubmit = async () => {
     ElMessage.warning('请上传模板文件');
     return;
   }
-  // 新增校验逻辑（放在最前面）
-  const nameRegex = /^[\u4e00-\u9fa5a-zA-Z0-9_-]+$/; // 包含中文的校验
+
+  const nameRegex = /^[\u4e00-\u9fa5a-zA-Z0-9_-]+$/;
   if (!nameRegex.test(templateName.value) || templateName.value.includes('.')) {
     ElMessage.error('模板名称包含非法字符或点号');
-    return; // 直接退出，不执行后续请求
+    return;
   }
 
   try {
@@ -99,25 +91,21 @@ const handleSubmit = async () => {
     if (templateType.value == 'b类') {
       templateType.value = 'case_b'
     }
-    console.log(templateType.value)
-    console.log(fileList.value[0])
 
-    // 1. 将文件追加到 formData
     formData.append('multipartFile', fileList.value[0]);
-    // 2. 将 templateName 和 category 组合成 JSON 字符串，字段名为 req
     const jsonData = {
-      templateName: templateName.value+".docx",
+      templateName: templateName.value + ".docx",
       category: templateType.value
     };
-    // 将JSON转换为Blob并指定Content-Type
+
     const reqBlob = new Blob([JSON.stringify(jsonData)], {
       type: 'application/json'
     });
-    formData.append('req', reqBlob); // 字段名对应后端的req
+    formData.append('req', reqBlob);
 
     const response = await axiosService.post('/api/template/upload', formData);
 
-    if (response.data.code === 200) { // 根据实际接口返回结构调整
+    if (response.data.code === 200) {
       ElMessage.success('模板创建成功');
       router.push('/modelfile');
     } else {
@@ -127,7 +115,6 @@ const handleSubmit = async () => {
     let message = '请求失败，请稍后重试';
     if (axios.isAxiosError(error)) {
       if (error.response) {
-        // 后端返回的错误信息
         message = error.response.data.message || `服务器错误：${error.response.status}`;
       } else if (error.request) {
         message = '网络连接超时，请检查网络';
@@ -140,171 +127,217 @@ const handleSubmit = async () => {
     loading.value = false;
   }
 };
-
-// 移除文件
-const removeFile = (index: number) => {
-  fileList.value.splice(index, 1);
-};
 </script>
 
 <template>
-  <div class="create-template">
-    <div class="template-form">
-      <h2>创建模板</h2>
+  <div class="create-container">
+    <div class="background-pattern"></div>
 
-      <div class="form-group">
-        <label>模板类别</label>
-        <div class="select-wrapper">
-          <select v-model="templateType">
-            <option value="a类" disabled>a类</option>
-            <option value="b类">b类</option>
-          </select>
-          <div class="help-icon" title="当前仅有创建b类模板权限">?</div>
+    <div class="create-card">
+      <div class="card-header">
+        <div class="header-icon">
+          <svg t="1744272484522" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3902" width="200" height="200"><path d="M778.24 552.96c-124.5184 0-225.28 100.7616-225.28 225.28s100.7616 225.28 225.28 225.28 225.28-100.7616 225.28-225.28-100.7616-225.28-225.28-225.28z m123.904 349.184c-32.9728 33.1776-77.0048 51.4048-123.904 51.4048s-90.7264-18.2272-123.904-51.4048c-33.1776-32.9728-51.4048-77.0048-51.4048-123.904s18.2272-90.7264 51.4048-123.904c32.9728-33.1776 77.0048-51.4048 123.904-51.4048s90.7264 18.2272 123.904 51.4048c33.1776 32.9728 51.4048 77.0048 51.4048 123.904s-18.2272 90.7264-51.4048 123.904z" p-id="3903" fill="#fbfbfb"></path><path d="M803.6352 678.0928h-50.176v75.1616h-74.9568v49.9712h74.9568v75.1616h50.176v-75.1616h75.1616v-49.9712h-75.1616zM798.72 20.48v204.8h204.8V20.48H798.72z m162.816 123.2896v40.96h-120.6272v-123.6992h40.96v50.7904l50.7904-50.7904 28.8768 28.8768-53.6576 53.6576h53.6576v0.2048zM173.6704 672.5632h363.52l20.48-40.3456H173.6704zM587.9808 488.6528H173.6704v40.3456h414.3104zM360.448 140.288h-96.6656v62.2592H497.8688v-62.464H401.2032V79.872h116.736v-59.392h-274.432v59.5968H360.448zM587.9808 344.2688H180.8384c-1.4336 0-3.072-0.4096-4.3008 0.2048-1.2288 0.4096-3.072 1.8432-3.072 2.6624-0.2048 12.6976-0.2048 25.3952-0.2048 38.0928H587.776v-40.96h0.2048zM679.1168 219.136v311.296l61.6448-18.432V198.2464c0-31.9488-26.2144-57.9584-57.9584-57.9584h-137.4208v62.2592h117.1456c9.0112 0 16.5888 7.3728 16.5888 16.5888z" p-id="3904" fill="#fbfbfb"></path><path d="M98.7136 924.672c-9.216 0-16.5888-7.5776-16.5888-16.5888V219.136c0-9.216 7.5776-16.5888 16.5888-16.5888h117.3504v-62.2592h-137.6256c-31.9488 0-57.9584 26.2144-57.9584 57.9584v729.7024c0 31.9488 26.2144 57.9584 57.9584 57.9584h528.384l-51.2-61.2352h-456.9088z" p-id="3905" fill="#fbfbfb"></path></svg>
         </div>
+        <h2>创建新模板</h2>
+        <p>设置模板信息并上传文件</p>
       </div>
 
-      <div class="form-group">
-        <label>模板名称</label>
-        <input type="text" v-model.trim="templateName" placeholder="请输入模板名称" maxlength="50" />
-      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>模板类别 <el-tooltip content="当前仅有创建b类模板权限" placement="top">
+              <el-icon>
+                <QuestionFilled />
+              </el-icon>
+            </el-tooltip></label>
+          <el-select v-model="templateType" class="template-select" disabled>
+            <el-option value="a类" label="a类 (不可用)" disabled />
+            <el-option value="b类" label="b类" />
+          </el-select>
+        </div>
 
-      <div class="form-group">
-        <label>模板上传</label>
-        <div class="upload-area" :class="{ 'dragging': isDragging }" @dragover.prevent="isDragging = true"
-          @dragleave="isDragging = false" @drop.prevent="handleDrop" @click="fileInput?.click()">
-          <transition name="fade" mode="out-in">
-            <div v-if="fileList.length === 0" class="upload-placeholder">
-              <div class="upload-icon">+</div>
-              <p>点击或拖拽文件到此处上传</p>
-              <small>仅支持单个文件，最大 50MB</small>
-            </div>
+        <div class="form-group">
+          <label>模板名称 <span class="required">*</span></label>
+          <el-input v-model="templateName" placeholder="请输入模板名称" clearable="true" class="template-input" maxlength="50"
+            show-word-limit />
+        </div>
 
-            <!-- 文件列表展示始终保持单文件 -->
-            <div v-else class="file-list">
-              <div v-for="(file, index) in fileList" :key="index" class="file-item">
-                <span class="file-name">{{ file.name }}</span>
-                <span class="file-size">{{ formatSize(file.size) }}</span>
-                <!-- <button >
-                  ×
-                </button> -->
-                <el-button type="danger" :icon="Delete" circle @click.stop="removeFile(index)" class="remove-btn" title="移除文件"/>
+        <div class="form-group">
+          <label>模板文件 <span class="required">*</span></label>
+          <div class="upload-area" :class="{ 'dragging': isDragging }" @dragover.prevent="isDragging = true"
+            @dragleave="isDragging = false" @drop.prevent="handleDrop" @click="fileInput?.click()">
+            <transition name="fade" mode="out-in">
+              <div v-if="fileList.length === 0" class="upload-placeholder">
+                <div class="upload-icon">
+                  <el-icon :size="40">
+                    <DocumentAdd />
+                  </el-icon>
+                </div>
+                <p>点击或拖拽文件到此处上传</p>
+                <small>仅支持 .docx 文件，最大 50MB</small>
               </div>
-            </div>
-          </transition>
+
+              <div v-else class="file-list">
+                <div v-for="(file, index) in fileList" :key="index" class="file-item">
+                  <div class="file-info">
+                    <span class="file-name">{{ file.name }}</span>
+                    <span class="file-size">{{ formatSize(file.size) }}</span>
+                  </div>
+                  <el-button type="danger" :icon="Delete" circle @click.stop="removeFile(index)" size="small" />
+                </div>
+              </div>
+            </transition>
+          </div>
+          <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" accept=".docx" />
         </div>
 
-        <!-- 添加单文件选择限制 -->
-        <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" multiple="false" />
+        <el-button type="primary" @click="handleSubmit" size="large" class="submit-btn" :loading="loading">
+          {{ loading ? '提交中...' : '创建模板' }}
+        </el-button>
       </div>
-
-      <button class="submit-btn" @click="handleSubmit" :disabled="loading">
-        {{ loading ? '提交中...' : '提交' }}
-      </button>
     </div>
   </div>
 </template>
 
 <style scoped>
-.create-template {
-  min-height: 100vh;
-  padding: 2vw;
-  box-sizing: border-box;
+.create-container {
+  min-height: 80vh;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  background: #f5f7fa;
+  padding: 2rem;
+  position: relative;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
+  overflow: hidden;
 }
 
-.template-form {
+.background-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(33, 150, 243, 0.1) 0%, transparent 20%),
+    radial-gradient(circle at 90% 30%, rgba(25, 118, 210, 0.1) 0%, transparent 25%),
+    radial-gradient(circle at 50% 80%, rgba(13, 71, 161, 0.1) 0%, transparent 30%);
+  z-index: 0;
+}
+
+.create-card {
   width: 100%;
-  max-width: 800px;
+  max-width: 600px;
   background: white;
-  padding: 2em;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(33, 150, 243, 0.2);
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-h2 {
-  margin-bottom: 1.5em;
-  color: #333;
-  font-size: 1.5em;
+.create-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(33, 150, 243, 0.3);
+}
+
+.card-header {
+  padding: 2rem 2rem 1rem;
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  padding: 1rem;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.card-header p {
+  margin: 0.5rem 0 0;
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+.card-body {
+  padding-bottom:1rem;
+  padding-left: 1rem;
+  padding-right: 1rem ;
 }
 
 .form-group {
-  margin-bottom: 1.5em;
+  margin-bottom: 1.5rem;
 }
 
-label {
-  display: block;
-  margin-bottom: 0.5em;
-  color: #333;
+.form-group label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
   font-weight: 500;
+  color: #424242;
+  gap: 0.5rem;
 }
 
-input,
-select {
+.required {
+  color: #f44336;
+  font-size: 0.8em;
+}
+
+.template-select,
+.template-input {
   width: 100%;
-  padding: 0.8em;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  font-size: 0.9em;
-  transition: all 0.3s;
-  box-sizing: border-box;
-}
-
-input:focus,
-select:focus {
-  border-color: #409eff;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
-}
-
-.select-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-}
-
-.help-icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #f4f4f5;
-  color: #909399;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  cursor: help;
 }
 
 .upload-area {
   border: 2px dashed #dcdfe6;
-  border-radius: 4px;
-  padding: 2em;
+  border-radius: 8px;
+  padding: 2rem;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s;
-  min-height: 200px;
+  transition: all 0.3s ease;
+  min-height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #fafafa;
 }
 
-.upload-area:hover {
-  border-color: #409eff;
-  background: rgba(64, 158, 255, 0.02);
+.upload-area.dragging {
+  border-color: #2196F3;
+  background-color: rgba(33, 150, 243, 0.05);
 }
 
 .upload-placeholder {
-  color: #909399;
+  color: #757575;
 }
 
 .upload-icon {
-  font-size: 2.5em;
-  color: #909399;
-  margin-bottom: 0.5em;
+  margin-bottom: 1rem;
+  color: #2196F3;
+}
+
+.upload-placeholder p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.upload-placeholder small {
+  font-size: 0.8rem;
+  color: #9e9e9e;
 }
 
 .file-list {
@@ -315,74 +348,57 @@ select:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.8em;
+  padding: 0.8rem;
   background: #f5f7fa;
-  border-radius: 4px;
-  margin-bottom: 0.5em;
+  border-radius: 6px;
 }
 
-.remove-btn {
-  background: none;
-  border: none;
-  color: #f56c6c;
-  cursor: pointer;
-  font-size: 1.2em;
-  padding: 0 0.5em;
-  transition: color 0.3s;
+.file-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
 }
 
-.remove-btn:hover {
-  color: #f78989;
+.file-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.file-size {
+  font-size: 0.8rem;
+  color: #757575;
 }
 
 .submit-btn {
   width: 100%;
-  padding: 0.8em;
-  background: #409eff;
-  color: white;
+  margin-top:0.5rem;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
   border: none;
-  border-radius: 4px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-top: 1em;
+  transition: all 0.3s ease;
 }
 
 .submit-btn:hover {
-  background: #66b1ff;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #1976D2 0%, #0d47a1 100%);
+  transform: translateY(-2px);
 }
 
 .submit-btn:active {
   transform: translateY(0);
 }
 
-@media (max-width: 768px) {
-  .create-template {
-    padding: 1em;
-  }
-
-  .template-form {
-    padding: 1.5em;
-  }
-
-  .upload-area {
-    padding: 1em;
-    min-height: 150px;
-  }
-}
-
-/* 新增拖拽状态样式 */
-.upload-area.dragging {
-  border-color: #409eff;
-  background: rgba(64, 158, 255, 0.05);
-  transform: translateY(-2px);
-}
-
 /* 过渡动画 */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s;
+  transition: opacity 0.3s ease;
 }
 
 .fade-enter-from,
@@ -390,35 +406,28 @@ select:focus {
   opacity: 0;
 }
 
-.file-name {
-  max-width: 60%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* 优化移动端显示 */
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .file-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5em;
+  .create-container {
+    padding: 1rem;
   }
-
-  .file-size {
-    font-size: 0.9em;
-    color: #666;
+  
+  .card-header {
+    padding: 1.5rem 1rem 1rem;
   }
-}
-
-/* 添加加载状态样式 */
-.submit-btn[disabled] {
-  background-color: #a0cfff;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.submit-btn[disabled]:hover {
-  background-color: #a0cfff;
+  
+  .header-icon {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .card-body {
+    padding: 1.5rem 1rem;
+  }
+  
+  .upload-area {
+    padding: 1.5rem;
+    min-height: 150px;
+  }
 }
 </style>

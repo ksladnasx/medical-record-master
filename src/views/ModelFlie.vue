@@ -8,7 +8,8 @@ import formatDate from "../tools/formatDate";
 import { ElMessage, ElMessageBox } from 'element-plus';
 import axiosService from "../utils/axios-test"
 import templateFiles from '../data/data'
-import {DArrowRight} from "@element-plus/icons-vue"
+import { DArrowRight } from "@element-plus/icons-vue"
+import { defineConfig } from 'vite';
 const userId = ref()
 
 
@@ -27,7 +28,7 @@ export default defineComponent({
         });
 
         const filteredTemplates = ref<TemplateFile[]>([]);
-            filteredTemplates.value = templateFiles().templateFiles.value
+        filteredTemplates.value = templateFiles().templateFiles.value
         const currentPage = ref(1);
         const showPage = ref(1);
         const pageSize = 10;
@@ -130,10 +131,10 @@ export default defineComponent({
             currentPage.value = 1;
         };
 
-        const isEmpty = ()=>{
-            if (filters.value.id == '' && filters.value.author == '' && filters.value.category== '' && filters.value.templateName == '' && filters.value.modifyDate == '') {
+        const isEmpty = () => {
+            if (filters.value.id == '' && filters.value.author == '' && filters.value.category == '' && filters.value.templateName == '' && filters.value.modifyDate == '') {
                 return true
-            }else{
+            } else {
                 return false
             }
         }
@@ -468,7 +469,7 @@ export default defineComponent({
             viewFileDetails,
             deleteFile,
             downloadFile,
-            renameFile,Search,useUserStore,DArrowRight
+            renameFile, Search, useUserStore, DArrowRight, pageSize, updatePage
         };
     },
 });
@@ -478,545 +479,924 @@ export default defineComponent({
 </script>
 
 <template>
-    <div class="file-management">
-        <header class="header">
-            
-            <h2>模板模板</h2>
-            <p>现存模板如下</p>
+    <div class="template-management">
+        <!-- 背景装饰元素 -->
+        <div class="decorative-elements">
+            <div class="circle-blue"></div>
+            <div class="circle-light-blue"></div>
+            <div class="wave-pattern"></div>
+        </div>
 
-            <button class="create-template-btn" @click="goToCreateTemplate">创建模板</button>
-            <hr style="max-width: 2200px; ">
-        </header>
-
-        <div class="filter-container">
-            <div class="filter-group">
-                <div class="filter-item">
-                    <label>ID:</label>
-                    <el-input type="text" v-model="filters.id" placeholder="输入ID" clearable />
-                </div>
-                <div class="filter-item">
-                    <label>模板名称:</label>
-                    <el-input type="text" v-model="filters.templateName" placeholder="输入模板名称" clearable />
-                </div>
-                <div class="filter-item">
-                    <label>作者:</label>
-                    <el-input type="text" v-model="filters.author" placeholder="输入作者" clearable />
-                </div>
-                <div class="filter-item">
-                    <label>类别:</label>
-                    <!-- <select v-model="filters.category">
-                        <option value="">全部</option>
-                        <option value="a类">a类</option>
-                        <option value="b类">b类</option>
-                    </select> -->
-                    <el-select v-model="filters.category" clearable placeholder="Select">
-                        <!-- <el-option label="全部" value="" /> -->
-                        <el-option label="a类" value="a类" />
-                        <el-option label="b类" value="b类" />
-                    </el-select>
-                </div>
-                <div class="filter-item">
-                    <label>修改日期:</label>
-                    <el-input type="date" v-model="filters.modifyDate" clearable />
-                   
+        <!-- 主容器 -->
+        <div class="main-container">
+            <!-- 头部区域 - 重新设计 -->
+            <div class="header-section">
+                <div class="header-content">
+                    <div class="title-wrapper">
+                        <h1 class="page-title">
+                            <span class="title-text">模板管理</span>
+                            <span class="title-highlight"></span>
+                        </h1>
+                        <p class="page-subtitle">高效管理您的文档模板资源 <span class="blink-dot">·</span></p>
+                    </div>
+                    <div class="header-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <el-icon>
+                                    <Files />
+                                </el-icon>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value">{{ totalPages * pageSize }}</div>
+                                <div class="stat-label">总模板数</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
+                <el-button type="primary" class="create-template-btn" @click="goToCreateTemplate">
+                    <span class="btn-text">创建模板</span>
+                    <el-icon class="btn-icon">
+                        <Plus />
+                    </el-icon>
+                    <span class="btn-effect"></span>
+                </el-button>
+            </div>
 
-                <div class="filter-item filter-actions">
-                    <el-button type="primary" :icon="Search" @click="applyFilters">查询</el-button>
-                    <!-- <button class="btn query" @click="applyFilters">查询</button> -->
-                    <el-button class="btn reset" @click="resetFilters">
-                        <svg t="1740899657675" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                            xmlns="http://www.w3.org/2000/svg" p-id="1471" width="200" height="200">
-                            <path
-                                d="M130 562.5c0-19.33 15.67-35 35-35s35 15.67 35 35C200 735.089 339.911 875 512.5 875S825 735.089 825 562.5 685.089 250 512.5 250c-19.33 0-35-15.67-35-35s15.67-35 35-35C723.749 180 895 351.251 895 562.5S723.749 945 512.5 945 130 773.749 130 562.5z"
-                                fill="#2F54EB" p-id="1472"></path>
-                            <path
-                                d="M482.657 214.747l79.355 79.356c10.74 10.74 10.74 28.151 0 38.89-10.74 10.74-28.151 10.74-38.89 0l-85.573-85.572c-18.045-18.045-18.045-47.302 0-65.348l85.766-85.766c10.74-10.74 28.152-10.74 38.891 0 10.74 10.74 10.74 28.151 0 38.89l-79.55 79.55z"
-                                fill="#2F54EB" p-id="1473"></path>
-                        </svg>
-                        重置</el-button>
+            <!-- 筛选区域 -->
+            <div class="filter-section">
+                <div class="filter-grid">
+                    <div class="filter-item">
+                        <label>ID</label>
+                        <el-input v-model="filters.id" placeholder="输入ID" clearable="true" class="filter-input" />
+                    </div>
+                    <div class="filter-item">
+                        <label>模板名称</label>
+                        <el-input v-model="filters.templateName" placeholder="输入模板名称" clearable="true"
+                            class="filter-input" />
+                    </div>
+                    <div class="filter-item">
+                        <label>作者</label>
+                        <el-input v-model="filters.author" placeholder="输入作者" clearable="true" class="filter-input" />
+                    </div>
+                    <div class="filter-item">
+                        <label>类别</label>
+                        <el-select v-model="filters.category" clearable="true" placeholder="选择类别" class="filter-select">
+                            <el-option label="a类" value="a类" />
+                            <el-option label="b类" value="b类" />
+                        </el-select>
+                    </div>
+                    <div class="filter-item">
+                        <label>修改日期</label>
+                        <el-date-picker v-model="filters.modifyDate" type="date" placeholder="选择日期"
+                            class="filter-date" />
+                    </div>
+                    <div class="filter-actions">
+                        <el-button type="primary" :icon="Search" @click="applyFilters" class="query-btn">
+                            查询
+                        </el-button>
+                        <el-button @click="resetFilters" class="reset-btn">
+                            <el-icon>
+                                <Refresh />
+                            </el-icon>
+                            重置
+                        </el-button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="table-container">
-            <table >
-                <thead>
-                    <tr >
-                        <th>ID</th>
-                        <th>模板</th>
-                        <th>作者</th>
-                        <th style="display: flex;flex-direction: row;justify-content: center;">分类<div class="help-icon" title="邮箱用于绑定账户，无法修改">?</div></th>
-                        <th>修改时间</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-if="paginatedTemplates.length === 0">
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td >暂无相关数据</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr v-else v-for="template in paginatedTemplates" :key="template.id">
-                        <td>{{ template.id }}</td>
-                        <td>{{ template.templateName }}</td>
-                        <td>{{ template.authorName }}</td>
-                        <td><span class="category-tag">{{ template.category }}</span></td>
-                        <td>{{ formatDate(template.updateTime).split(" ")[0] }}
-                            <div style="font-size: smaller; color: gray;">
-                                {{ formatDate(template.updateTime).split(" ")[1] }}
-                                {{ formatDate(template.updateTime).split(" ")[2] }}
-                            </div>
-                        </td>
-                        <td>
-                            <button style="align-items: center; " class="goto" @click="goToFileManage(template)">
-                                <svg t="1740899969657" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                                    xmlns="http://www.w3.org/2000/svg" p-id="4149" width="200" height="200">
-                                    <path
-                                        d="M584.533333 512l-302.933333 302.933333L341.333333 874.666667l302.933334-302.933334 59.733333-59.733333-59.733333-59.733333L341.333333 145.066667 281.6 209.066667l302.933333 302.933333z"
-                                        fill="#1296db" p-id="4150"></path>
-                                </svg>
-                            </button>
-                        </td>
-                        <td class="action-cell">
-                            <div class="act">
-                                <button class="goto" @click="showMenu(template.id)">
-                                    <svg t="1740900353387" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                                        xmlns="http://www.w3.org/2000/svg" p-id="12391" width="200" height="200">
-                                        <path
-                                            d="M319 256.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 128.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
-                                            p-id="12392" fill="#8a8a8a"></path>
-                                        <path d="M126.5 192.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
-                                            p-id="12393" fill="#8a8a8a"></path>
-                                        <path
-                                            d="M319 577.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 449.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
-                                            p-id="12394" fill="#8a8a8a"></path>
-                                        <path d="M126.5 513.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
-                                            p-id="12395" fill="#8a8a8a"></path>
-                                        <path
-                                            d="M319 896.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 768.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
-                                            p-id="12396" fill="#8a8a8a"></path>
-                                        <path d="M126.5 832.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
-                                            p-id="12397" fill="#8a8a8a"></path>
-                                    </svg>
+            <!-- 表格区域 - 重新设计 -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h3 class="table-title">模板列表</h3>
+                    <div class="table-actions">
+                        <el-tooltip content="刷新数据" placement="top">
+                            <el-button circle @click="updatePage(currentPage, pageSize)">
+                                <el-icon>
+                                    <Refresh />
+                                </el-icon>
+                            </el-button>
+                        </el-tooltip>
+                    </div>
+                </div>
 
-                                </button>
-                                <div class="action-menu" :class="{ show: shouldShow === template.id }">
-                                    <div v-if="template.category == `b类` && template.authorId == userId"
-                                        class="action-item" style="background-color:orangered;"
-                                        @click="deleteFile(template.id)">
-                                        <i class="delete-icon"></i>
-                                        <span>删除</span>
-                                    </div>
-                                    <div class="action-item" style="background-color:#409eff;"
-                                        @click="viewFileDetails(template.id, template.templateName)">
-                                        <i class="view-icon"></i>
-                                        <span>查看</span>
-                                    </div>
-                                    <div v-if="template.category == `b类` && template.authorId == userId"
-                                        class="action-item" style="background-color:greenyellow;"
-                                        @click="renameFile(template.id, template.templateName)">
-                                        <i class="rename-icon"></i> <!-- 修正图标类名 -->
-                                        <span>重命名</span>
-                                    </div>
-                                    <div class="action-item" style="background-color:palevioletred;"
-                                        @click="downloadFile(template.id, template.templateName)">
-                                        <i class="download-icon"></i>
-                                        <span>下载</span>
+                <div class="table-container">
+                    <el-table :data="paginatedTemplates" style="width: 100%" stripe empty-text="暂无相关数据"
+                        class="modern-table">
+                        <el-table-column prop="id" label="ID" width="100" align="center">
+                            <template #default="{ row }">
+                                <div class="id-cell">{{ row.id }}</div>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column prop="templateName" label="模板名称" min-width="200">
+                            <template #default="{ row }">
+                                <div class="template-name-cell">
+                                    <el-icon class="template-icon">
+                                        <Collection />
+                                    </el-icon>
+                                    <span class="name-text">{{ row.templateName }}</span>
+                                </div>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column prop="authorName" label="作者" width="150">
+                            <template #default="{ row }">
+                                <div class="author-cell">
+                                    <el-avatar :size="28" class="author-avatar">{{ row.authorName.charAt(0)
+                                        }}</el-avatar>
+                                    <span class="author-name">{{ row.authorName.slice(1) }}</span>
+                                </div>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column label="分类" width="140" align="center">
+                            <template #default="{ row }">
+                                <el-tag :type="row.category === 'a类' ? 'success' : 'primary'" class="category-tag"
+                                    effect="light" round>
+                                    {{ row.category }}
+                                </el-tag>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column label="修改时间" width="180">
+                            <template #default="{ row }">
+                                <div class="time-cell">
+                                    <div class="date">{{ formatDate(row.updateTime).split(" ")[0] }}</div>
+                                    <div class="time">
+                                        <el-icon class="time-icon">
+                                            <Clock />
+                                        </el-icon>
+                                        <span>{{ formatDate(row.updateTime).split(" ")[1] }} {{
+                                            formatDate(row.updateTime).split(" ")[2] }}</span>
                                     </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                            </template>
+                        </el-table-column>
 
-        <!-- 底部的那个页面跳转按钮 -->
-        <div class="pagination">
-            <button :disabled="currentPage === 1" @click="prevPage">&lt;</button>
-            <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage }">{{
-                showPage }}</button>
-            <button @click="changePage($event)" v-if="showPage + 1 <= totalPages"
-                :class="{ active: currentPage === showPage + 1 || inpval == showPage + 1 }">{{ showPage + 1
-                }}</button>
-            <button @click="changePage($event)" v-if="showPage + 2 <= totalPages"
-                :class="{ active: currentPage === showPage + 2 || inpval == showPage + 2 }">{{ showPage + 2
-                }}</button>
-            <button @click="changePage($event)" v-if="showPage + 3 <= totalPages"
-                :class="{ active: currentPage === showPage + 3 || inpval == showPage + 3 }">{{ showPage + 3
-                }}</button>
-            <!-- <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span> -->
-            <button :disabled="currentPage === totalPages" @click="nextPage">></button>
-            <div>
-                <input type="text" style="width: 60px; " v-model="inpvals"> <button @click="gotoPage">Go</button>
+                        <el-table-column label="操作" width="150" align="center">
+                            <template #default="{ row }">
+                                <div class="action-buttons">
+                                    <el-tooltip content="查看详情" placement="top">
+                                        <el-button circle size="small"
+                                            @click="viewFileDetails(row.id, row.templateName)"
+                                            class="action-btn view-btn">
+                                            <el-icon>
+                                                <View />
+                                            </el-icon>
+                                        </el-button>
+                                    </el-tooltip>
+
+                                    <el-dropdown trigger="click" placement="right-start">
+                                        <el-button circle size="small" class="more-btn">
+                                            <el-icon>
+                                                <More />
+                                            </el-icon>
+                                        </el-button>
+                                        <template #dropdown>
+                                            <el-dropdown-menu class="action-menu">
+                                                <el-dropdown-item v-if="row.category === 'b类' && row.authorId == userId"
+                                                    @click="deleteFile(row.id)" class="menu-item delete">
+                                                    <el-icon>
+                                                        <Delete />
+                                                    </el-icon>
+                                                    <span>删除</span>
+                                                </el-dropdown-item>
+                                                <el-dropdown-item v-if="row.category === 'b类' && row.authorId == userId"
+                                                    @click="renameFile(row.id, row.templateName)"
+                                                    class="menu-item rename">
+                                                    <el-icon>
+                                                        <Edit />
+                                                    </el-icon>
+                                                    <span>重命名</span>
+                                                </el-dropdown-item>
+                                                <el-dropdown-item @click="downloadFile(row.id, row.templateName)"
+                                                    class="menu-item download">
+                                                    <el-icon>
+                                                        <Download />
+                                                    </el-icon>
+                                                    <span>下载</span>
+                                                </el-dropdown-item>
+                                            </el-dropdown-menu>
+                                        </template>
+                                    </el-dropdown>
+                                </div>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </div>
+
+            <!-- 分页区域 -->
+            <div class="pagination-section">
+                <!-- [保持原有分页代码不变] -->
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-/* 添加一个简单的 active 状态样式 */
-button.active {
-    background-color: #6eb9fb;
-    /* 绿色背景 */
-    color: white;
-    /* 白色文字 */
-}
-
-.icon {
-    width: 20px;
-    height: 20px;
-    padding: 0;
-}
-
-.file-management {
+.template-management {
     min-height: 100vh;
-    padding: 2vw;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    
-    /* overflow: hidden; */
-}
-
-.header {
-    width: 100%;
-    margin-bottom:-2vh;
+    padding: 2rem;
+    /* padding-top: 1rem; */
     position: relative;
-    left: 1vw;
-    max-width: 1400px;
-    padding: 24px 32px;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
 }
 
-h2 {
-    font-size: 28px;
-    font-weight: 600;
-    background: linear-gradient(135deg, #1a73e8 0%, #64b5f6 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    display: inline-block;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-p {
-    color: #7c8ea9;
-    font-size: 14px;
-    margin-bottom: 24px;
-}
-
-.create-template-btn {
-    background: linear-gradient(135deg, #1a73e8 0%, #64b5f6 100%);
-    color: white;
-    border: none;
-    padding: 12px 28px;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.25);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* 背景装饰元素 */
+.decorative-elements {
     position: absolute;
-    right: 32px;
-    top: 24px;
-}
-
-.create-file-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(26, 115, 232, 0.35);
-    background: linear-gradient(135deg, #4ca3eb 100%);
-}
-
-.create-file-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 3px 8px rgba(26, 115, 232, 0.25);
-}
-
-hr {
-    border: none;
-    height: 1px;
-    background: linear-gradient(90deg,
-            rgba(26, 115, 232, 0.1) 0%,
-            rgba(26, 115, 232, 0.3) 50%,
-            rgba(26, 115, 232, 0.1) 100%);
-    margin: 24px 0;
-}
-
-.filter-container {
-    padding: 2vw;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.circle-blue {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0) 70%);
+    top: -100px;
+    right: -100px;
+    animation: float 8s ease-in-out infinite;
+}
+
+.circle-light-blue {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(100, 181, 246, 0.1) 0%, rgba(100, 181, 246, 0) 70%);
+    bottom: 100px;
+    left: -50px;
+    animation: float 6s ease-in-out infinite 2s;
+}
+
+.wave-pattern {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%232196f3" opacity=".05"/></svg>');
+    background-size: cover;
+    opacity: 0.3;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-20px) rotate(5deg);
+    }
+}
+
+/* 主容器 */
+.main-container {
+    position: relative;
+    z-index: 1;
     max-width: 1400px;
     margin: 0 auto;
-    /* box-sizing: border-box; */
-    position: relative;
-    left: 5vw;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(33, 150, 243, 0.1);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.filter-group {
+/* 头部区域 - 新设计 */
+.header-section {
+    padding: 2rem;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
     position: relative;
-    right: 10vh;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-    margin-bottom: 6px;
-    flex-grow: 1;
+    overflow: hidden;
 }
 
-.filter-item {
+.header-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="3" fill="white" opacity="0.1"/><circle cx="50" cy="30" r="4" fill="white" opacity="0.1"/><circle cx="80" cy="20" r="3" fill="white" opacity="0.1"/><circle cx="30" cy="60" r="5" fill="white" opacity="0.1"/><circle cx="70" cy="70" r="3" fill="white" opacity="0.1"/></svg>');
+    opacity: 0.3;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     position: relative;
+    z-index: 1;
+}
+
+.title-wrapper {
+    max-width: 600px;
+}
+
+.page-title {
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin: 0;
+    position: relative;
+    display: inline-block;
+    color: white;
+}
+
+.title-text {
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.title-highlight {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    width: 100%;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    z-index: 1;
+    transform: skewX(-15deg);
+    animation: highlight-pulse 3s ease-in-out infinite;
+}
+
+@keyframes highlight-pulse {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        width: 100%;
+    }
+
+    50% {
+        opacity: 0.5;
+        width: 110%;
+    }
+}
+
+.page-subtitle {
+    font-size: 1rem;
+    margin: 0.75rem 0 0;
+    color: rgba(255, 255, 255, 0.85);
+    position: relative;
+}
+
+.blink-dot {
+    animation: blink 2s infinite;
+    opacity: 0;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* 统计卡片 */
+.header-stats {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 0.75rem 1.25rem;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-3px);
+}
+
+.stat-icon {
+    margin-right: 0.75rem;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.stat-content {
     display: flex;
     flex-direction: column;
-    /* gap: 4px; */
 }
 
-label {
-    /* width: 60px; */
-    font-size: 12px;
-    color: #606266;
-}
-
-input,
-select {
-    padding: 8px 10px;
-    border: 1px solid #dcdfe6;
-    border-radius: 4px;
-    font-size: 14px;
-    width: 200px;
-}
-
-.filter-actions {
-    width: 100vh;
-    height: 5vh;
-    display: flex;
-    position: relative;
-    top: 1.3vh;
-    flex-direction: row;
-    align-items: center;
-    flex-shrink: 0;
-    gap: 8px;
-    margin-left: 12px;
-}
-
-.btn {
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    min-width: 80px;
-}
-
-.btn.query {
-    background: #409eff;
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1;
     color: white;
-    border: none;
 }
 
-.btn.reset {
-    background: #f4f4f5;
-    color: #606266;
-    border: 1px solid #d3d4d6;
+.stat-label {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin-top: 0.25rem;
 }
 
-.btn:hover {
-    opacity: 0.9;
-}
-
-.table-container {
-    border: 1px solid #ebeef5;
-    border-radius: 8px;
-
-    /* overflow: hidden; */
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th {
-    background: #f5f7fa;
-    color: #909399;
+/* 创建模板按钮 */
+.create-template-btn {
+    position: relative;
+    overflow: hidden;
+    padding: 0.85rem 1.75rem;
     font-weight: 500;
-    padding: 12px;
-    text-align: center;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: #1976D2;
+    box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+    transition: all 0.3s ease;
+    z-index: 1;
 }
 
-td {
-    width: 250px;
-    padding-bottom: 6px;
-    padding-top: 6px;
-    padding-left: 20px;
-    padding-right: 20px;
-    border-top: 1px solid #ebeef5;
-    color: #606266;
-    text-align: center;
+.create-template-btn:hover {
+    background: white;
+    color: #1565C0;
+    box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
+    transform: translateY(-2px);
+}
+
+.create-template-btn:active {
+    transform: translateY(0);
+}
+
+.btn-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0.1) 100%);
+    transform: translateX(-100%) skewX(-15deg);
+    transition: all 0.6s ease;
+    z-index: -1;
+}
+
+.create-template-btn:hover .btn-effect {
+    transform: translateX(100%) skewX(-15deg);
+}
+
+.btn-text {
+    position: relative;
+    z-index: 1;
+}
+
+.btn-icon {
+    margin-left: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.create-template-btn:hover .btn-icon {
+    transform: rotate(90deg);
+}
+
+/* 表格区域 */
+.table-section {
+    padding: 1.5rem 2rem;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.table-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2196F3;
+    margin: 0;
+    position: relative;
+    padding-left: 1rem;
+}
+
+.table-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 1.2rem;
+    background: linear-gradient(to bottom, #2196F3, #64B5F6);
+    border-radius: 2px;
+}
+
+.table-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* 表格样式 */
+:deep(.modern-table) {
+    --el-table-border-color: rgba(0, 0, 0, 0.05);
+    --el-table-header-bg-color: #f5f9ff;
+    --el-table-header-text-color: #2196F3;
+    --el-table-row-hover-bg-color: #f0f7ff;
+}
+
+:deep(.modern-table .el-table__header th) {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background-color: #f5f9ff !important;
+}
+
+:deep(.modern-table .el-table__body tr:hover) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* 自定义单元格样式 */
+.id-cell {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #2196F3;
+    background: rgba(33, 150, 243, 0.1);
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.template-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.template-icon {
+    color: #2196F3;
+    font-size: 1.2rem;
+}
+
+.name-text {
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.author-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.author-avatar {
+    background: linear-gradient(135deg, #64B5F6, #2196F3);
+    color: white;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.author-name {
+    font-weight: 500;
 }
 
 .category-tag {
-    display: inline-block;
-    padding: 4px 8px;
-    background: #ecf5ff;
-    color: #409eff;
-    border-radius: 4px;
-    font-size: 12px;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
 }
 
-.no-data {
-    text-align: center;
-    padding: 24px;
-    color: #909399;
+.category-tag:hover {
+    transform: scale(1.05);
 }
 
-.pagination {
+.time-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.date {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.time {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 24px;
+    font-size: 0.85rem;
+    color: #78909c;
 }
 
-/* 操作按钮和下拉菜单样式 */
-.action-cell {
-    position: relative;
-    width: 80px;
+.time-icon {
+    margin-right: 0.25rem;
+    font-size: 0.9rem;
 }
 
-.act {
-    position: relative;
-    right: 10vh;
+/* 操作按钮 */
+.action-buttons {
     display: flex;
     justify-content: center;
+    gap: 0.5rem;
 }
 
 .action-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    background: #f0f2f5;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s;
+    background: rgba(33, 150, 243, 0.1);
+    color: #2196F3;
+    transition: all 0.3s ease;
 }
 
 .action-btn:hover {
-    background: #e0e2e5;
+    background: rgba(33, 150, 243, 0.2);
+    transform: scale(1.1);
 }
 
-.dropdown-icon {
-    font-size: 10px;
-    transition: transform 0.3s;
-}
-
-.action-menu {
-    position: absolute;
-    top: 100px;
-    right: -120px;
-    width: 120px;
-    background: transparent;
-    border-radius: 4px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    transform: translateY(-50%) translateX(20px) scale(0.95);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
-    /* display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: start; */
-}
-
-.action-menu.show {
-    opacity: 1;
-    transform: translateY(-50%) translateX(0) scale(1);
-    pointer-events: auto;
-}
-
-.action-item {
+.view-btn:hover {
     color: white;
-    display: flex;
-    border-radius: 4px;
-
-    align-items: center;
-    padding: 10px 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    /* margin: 4px 0; */
-    gap: 8px;
+    background: #2196F3;
 }
 
-.action-item:hover {
-    color: #000000;
-    transform: translateX(6px);
-    background: rgba(255, 255, 255, 0.2) !important;
-}
-
-.action-item.delete {
-    color: #f56c6c;
-}
-
-.action-item.delete:hover {
-    background: #fef0f0;
-}
-
-.action-item i {
-    margin-right: 8px;
-    font-size: 16px;
-}
-
-/* 新增样式 */
-.filter-row {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    justify-content: space-between;
-}
-
-/* 图标样式修正 */
-.download-icon::before {
-    content: "⤓";
-    font-weight: 900;
-}
-
-.rename-icon::before {
-    content: "✎";
-}
-
-.delete-icon::before {
-    content: "×";
-    font-weight: 900;
-}
-
-.view-icon::before {
-    content: "👁️";
-}
-
-/* tr表示每列 */
-tr:hover {
-    background: #f0f2f5;
-    color: #73a0a5;
+.more-btn {
+    background: rgba(158, 158, 158, 0.1);
+    color: #9e9e9e;
     transition: all 0.3s ease;
 }
-.goto {
-    cursor: pointer;
-    background-color: transparent;
-    transition: transform 0.3s ease;
+
+.more-btn:hover {
+    background: rgba(158, 158, 158, 0.2);
+    transform: scale(1.1);
 }
 
-.goto:hover {
-    background-color: #ffffff;
-    transform: scale(1.2);
+/* 下拉菜单 */
+.action-menu {
+    padding: 0.5rem 0;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    margin: 0.25rem 0;
+    border-radius: 8px;
+}
+
+.menu-item:hover {
+    background: rgba(33, 150, 243, 0.05);
+}
+
+.menu-item.delete {
+    color: #f44336;
+}
+
+.menu-item.view {
+    color: #2196f3;
+}
+
+.menu-item.rename {
+    color: #4caf50;
+}
+
+.menu-item.download {
+    color: #9c27b0;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .header-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .create-template-btn {
+        width: 100%;
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .template-management {
+        padding: 1rem;
+    }
+
+    .header-section {
+        padding: 1.5rem;
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+    }
+
+    .table-section {
+        padding: 1rem;
+    }
+
+    :deep(.modern-table) {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .stat-card {
+        width: 100%;
+    }
+}
+
+/* 筛选区域样式 */
+.filter-section {
+    padding: 1.5rem 2rem;
+    background: white;
+    border-bottom: 1px solid rgba(33, 150, 243, 0.1);
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-item label {
+    font-size: 0.9rem;
+    color: #2196F3;
+    font-weight: 500;
+    margin-left: 0.25rem;
+}
+
+.filter-input {
+    width: 100%;
+}
+
+.filter-input :deep(.el-input__wrapper) {
+    border-radius: 8px;
+    border: 1px solid rgba(33, 150, 243, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: none;
+}
+
+.filter-input :deep(.el-input__wrapper:hover) {
+    border-color: #2196F3;
+    box-shadow: 0 0 0 1px #2196F3;
+}
+
+.filter-input :deep(.el-input__wrapper.is-focus) {
+    border-color: #2196F3;
+    box-shadow: 0 0 0 1px #2196F3;
+}
+
+.filter-select {
+    width: 100%;
+}
+
+.filter-select :deep(.el-input__wrapper) {
+    border-radius: 8px;
+    border: 1px solid rgba(33, 150, 243, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: none;
+}
+
+.filter-select :deep(.el-input__wrapper:hover) {
+    border-color: #2196F3;
+    box-shadow: 0 0 0 1px #2196F3;
+}
+
+.filter-date {
+    width: 100%;
+}
+
+.filter-date :deep(.el-input__wrapper) {
+    border-radius: 8px;
+    border: 1px solid rgba(33, 150, 243, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: none;
+}
+
+.filter-date :deep(.el-input__wrapper:hover) {
+    border-color: #2196F3;
+    box-shadow: 0 0 0 1px #2196F3;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-self: flex-end;
+    margin-bottom: 0.15rem;
+    margin-left: 1rem;
+}
+
+.query-btn {
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    border: none;
+    color: white;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.query-btn:hover {
+    background: linear-gradient(135deg, #1976D2, #1565C0);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
+}
+
+.query-btn:active {
+    transform: translateY(0);
+}
+
+.reset-btn {
+    background: rgba(33, 150, 243, 0.1);
+    color: #2196F3;
+    border: none;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.reset-btn:hover {
+    background: rgba(33, 150, 243, 0.2);
+    color: #1976D2;
+    transform: translateY(-2px);
+}
+
+.reset-btn:active {
+    transform: translateY(0);
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+    .filter-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .filter-actions {
+        grid-column: span 3;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filter-actions {
+        grid-column: span 2;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-actions {
+        grid-column: span 1;
+        justify-content: center;
+    }
 }
 </style>

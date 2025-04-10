@@ -67,7 +67,7 @@ const isHovereds = ref(false);
       </div>
       <div class="login-form">
         <div class="form-item">
-          <el-input type="text" v-model="userName" size="small" placeholder="请输入邮箱" clearable="true">
+          <el-input type="text" v-model="userName" size="small" placeholder="请输入邮箱" clearable=true>
             <template #prefix>
               <el-icon size="large"><Message /></el-icon>
               <!-- prefix 和 suffix 命名的插槽 -->

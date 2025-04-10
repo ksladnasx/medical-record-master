@@ -155,14 +155,14 @@ const uploadAvatar = async () => {
                 }
 
                 localStorage.setItem('userInfo', JSON.stringify(info.data.data));
-                
+
 
             } catch {
                 ElMessage.error("获取用户信息失败");
 
             }//刷新页面以更新数据
             window.location.reload();
-                ElMessage.success("头像上传成功！")
+            ElMessage.success("头像上传成功！")
 
         } else {
             ElMessage.error(response.data.msg)
@@ -177,104 +177,249 @@ const uploadAvatar = async () => {
 
 <template>
     <div class="settings-container">
-        <h2>个人设置</h2>
-
-        <!-- 头像编辑 -->
-        <div class="setting-item avatar-section">
-            <img class="avatar" :src="userInfo.avatarUrl" alt="用户头像" />
-            <button class="edit-button" @click="openAvatarDialog">更换头像</button>
+        <!-- 背景装饰元素 -->
+        <div class="decorative-elements">
+            <div class="circle-blue"></div>
+            <div class="circle-light-blue"></div>
         </div>
 
-        <!-- 用户信息编辑 -->
-        <div class="info-section">
-            <div class="setting-item">
-                <label>用户名</label>
-                <el-input v-if="isEditing" v-model="userInfo.userName" clearable/>
-                <span v-else>{{ userInfo.userName }}</span>
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 头部标题 -->
+            <div class="header-section">
+                <h1 class="page-title">
+                    <span class="title-text">个人信息</span>
+                    <span class="title-highlight"></span>
+                </h1>
             </div>
 
-            <div class="setting-item">
-                <label>所属组织</label>
-                <el-input v-if="isEditing" v-model="userInfo.organization" clearable/>
-                <span v-else>{{ userInfo.organization }}</span>
-            </div>
-
-            <div class="setting-item">
-                <label>邮箱</label>
-                <div style="display: flex;flex-direction: row;justify-content: space-between;">
-                    <span>{{ userInfo.email }}</span>
-                <div class="help-icon" title="邮箱用于绑定账户，无法修改">?</div>
+            <!-- 头像设置 -->
+            <div class="avatar-section">
+                <div class="avatar-card">
+                    <div class="avatar-wrapper">
+                        <img class="avatar" :src="userInfo.avatarUrl" alt="用户头像" />
+                        <el-button class="edit-button" @click="openAvatarDialog">
+                            <el-icon>
+                                <CameraFilled />
+                            </el-icon>
+                            <span>更换头像</span>
+                        </el-button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 操作按钮 -->
-        <div class="action-buttons">
-            <template v-if="!isEditing">
-                <button class="primary-button" @click="enterEditMode">编辑信息</button>
-            </template>
-            <template v-else>
-                <button class="secondary-button" @click="isEditing = false">取消</button>
-                <button class="primary-button" @click.prevent="saveUserInfo">保存修改</button>
-            </template>
+            <!-- 个人信息表单 -->
+            <div class="form-section">
+                <div class="form-card">
+                    <div class="form-item">
+                        <label>用户名</label>
+                        <div class="form-content">
+                            <el-input v-if="isEditing" v-model="userInfo.userName" clearable class="form-input" />
+                            <span v-else class="form-value">{{ userInfo.userName }}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-item">
+                        <label>所属组织</label>
+                        <div class="form-content">
+                            <el-input v-if="isEditing" v-model="userInfo.organization" clearable class="form-input" />
+                            <span v-else class="form-value">{{ userInfo.organization }}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-item">
+                        <label>邮箱</label>
+                        <div class="form-content">
+                            <span class="form-value">{{ userInfo.email }}</span>
+                            <el-tooltip content="邮箱用于绑定账户，无法修改" placement="top">
+                                <el-icon class="help-icon">
+                                    <QuestionFilled />
+                                </el-icon>
+                            </el-tooltip>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="action-buttons">
+                <template v-if="!isEditing">
+                    <el-button type="primary" @click="enterEditMode" class="edit-btn">
+                        <el-icon>
+                            <Edit />
+                        </el-icon>
+                        <span>编辑信息</span>
+                    </el-button>
+                </template>
+                <template v-else>
+                    <el-button @click="isEditing = false" class="cancel-btn">
+                        <el-icon>
+                            <Close />
+                        </el-icon>
+                        <span>取消</span>
+                    </el-button>
+                    <el-button type="primary" @click.prevent="saveUserInfo" class="save-btn">
+                        <el-icon>
+                            <Check />
+                        </el-icon>
+                        <span>保存修改</span>
+                    </el-button>
+                </template>
+            </div>
         </div>
 
         <!-- 头像上传对话框 -->
-        <div v-if="showAvatarDialog" class="dialog-mask">
+        <el-dialog v-model="showAvatarDialog" title="上传新头像" width="500px" class="avatar-dialog">
             <div class="dialog-content">
-                <h3>上传新头像</h3>
                 <div class="avatar-preview">
                     <img v-if="avatarPreview" :src="avatarPreview" alt="预览" />
-                    <div v-else class="placeholder">选择图片预览</div>
+                    <div v-else class="avatar-placeholder">
+                        <el-icon>
+                            <Picture />
+                        </el-icon>
+                        <span>选择图片预览</span>
+                    </div>
                 </div>
-                <label class="file-upload">
-                    <input type="file" accept="image/*" @change="handleFileSelect">
-                    选择文件
+
+                <label class="file-upload-btn">
+
+
+                    <el-icon>
+                        <Upload />
+                    </el-icon>
+                    <span>选择文件<input type="file" accept="image/*" @change="handleFileSelect"></span>
+
                 </label>
                 <div class="dialog-actions">
-                    <button @click="showAvatarDialog = false">取消</button>
-                    <button :disabled="!selectedFile" @click.prevent="uploadAvatar">上传</button>
+                    <el-button @click="showAvatarDialog = false">取消</el-button>
+                    <el-button type="primary" :disabled="!selectedFile" @click.prevent="uploadAvatar">
+                        上传头像
+                    </el-button>
                 </div>
             </div>
-        </div>
+        </el-dialog>
     </div>
 </template>
 
 <style scoped>
+/* 全局样式 */
 .settings-container {
-    position: relative;
-    top: 4rem;
-    max-width: 800px;
-    margin: 0 auto;
+    min-height: 100vh;
     padding: 2rem;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    background: linear-gradient(135deg, #f5f9ff 0%, #e0ecff 100%);
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
-h2 {
-    color: #1a1a1a;
+/* 背景装饰元素 */
+.decorative-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.circle-blue {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0) 70%);
+    top: -100px;
+    right: -100px;
+    animation: float 8s ease-in-out infinite;
+}
+
+.circle-light-blue {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(100, 181, 246, 0.1) 0%, rgba(100, 181, 246, 0) 70%);
+    bottom: 100px;
+    left: -50px;
+    animation: float 6s ease-in-out infinite 2s;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-20px) rotate(5deg);
+    }
+}
+
+/* 主内容区 */
+.main-content {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(33, 150, 243, 0.1);
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 头部标题 */
+.header-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(33, 150, 243, 0.1);
+}
+
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    position: relative;
+    display: inline-block;
+    color: #2196F3;
+}
+
+.title-text {
+    position: relative;
+    z-index: 2;
+}
+
+.title-highlight {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background: rgba(33, 150, 243, 0.2);
+    border-radius: 4px;
+    z-index: 1;
+}
+
+/* 头像区域 */
+.avatar-section {
     margin-bottom: 2rem;
 }
 
-.setting-item {
+.avatar-card {
     display: flex;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 6px;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(33, 150, 243, 0.05);
+    border-radius: 12px;
+    border: 1px dashed rgba(33, 150, 243, 0.2);
 }
 
-.setting-item label {
-    width: 120px;
-    color: #666;
-    font-weight: 500;
-}
-
-.avatar-section {
+.avatar-wrapper {
+    display: flex;
     flex-direction: column;
-    align-items: flex-center;
+    align-items: center;
     gap: 1rem;
 }
 
@@ -283,79 +428,114 @@ h2 {
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #e9ecef;
+    border: 3px solid rgba(33, 150, 243, 0.1);
 }
 
-.info-section {
-    margin: 2rem 0;
+.edit-button {
+    background: rgba(33, 150, 243, 0.1);
+    color: #2196F3;
+    border: none;
 }
 
-input {
+.edit-button:hover {
+    background: rgba(33, 150, 243, 0.2);
+}
+
+/* 表单区域 */
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.form-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.05);
+}
+
+.form-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.form-item:last-child {
+    margin-bottom: 0;
+}
+
+.form-item label {
+    width: 120px;
+    font-weight: 500;
+    color: #2196F3;
+}
+
+.form-content {
     flex: 1;
-    padding: 0.5rem;
-    border: 1px solid #aecdec;
-    border-radius: 4px;
-    font-size: 1rem;
+    display: flex;
+    align-items: center;
 }
 
+.form-value {
+    color: #555;
+}
+
+.help-icon {
+    color: #78909c;
+    cursor: help;
+    margin-left: 0.5rem;
+}
+
+/* 操作按钮 */
 .action-buttons {
     display: flex;
+    justify-content: flex-end;
     gap: 1rem;
-    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(33, 150, 243, 0.1);
 }
 
-button {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.primary-button {
-    background: #1677ff;
+.edit-btn,
+.save-btn {
+    background: linear-gradient(135deg, #2196F3, #1976D2);
     color: white;
 }
 
-.primary-button:hover {
-    background: #1456cb;
+.cancel-btn {
+    background: rgba(33, 150, 243, 0.1);
+    color: #2196F3;
 }
 
-.secondary-button {
-    background: #f0f2f5;
-    color: #666;
+/* 头像上传对话框 */
+.avatar-dialog :deep(.el-dialog) {
+    border-radius: 16px;
 }
 
-.secondary-button:hover {
-    background: #e5e7eb;
+.avatar-dialog :deep(.el-dialog__header) {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    margin: 0;
+    padding: 1rem 1.5rem;
 }
 
-.dialog-mask {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.avatar-dialog :deep(.el-dialog__title) {
+    color: white;
+}
+
+.avatar-dialog :deep(.el-dialog__headerbtn) {
+    color: white;
 }
 
 .dialog-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    width: 400px;
+    padding: 1.5rem;
+    text-align: center;
 }
 
 .avatar-preview {
     width: 200px;
     height: 200px;
-    border: 2px dashed #ced4da;
-    margin: 1rem auto;
+    margin: 0 auto 1.5rem;
     border-radius: 50%;
     overflow: hidden;
+    border: 2px dashed rgba(33, 150, 243, 0.3);
 }
 
 .avatar-preview img {
@@ -364,15 +544,21 @@ button {
     object-fit: cover;
 }
 
-.placeholder {
+.avatar-placeholder {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100%;
-    color: #999;
+    color: #78909c;
 }
 
-.file-upload {
+.file-upload-btn {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.file-upload-btn {
     display: inline-block;
     padding: 0.5rem 1rem;
     background: #f0f2f5;
@@ -381,14 +567,60 @@ button {
     margin: 1rem 0;
 }
 
-.file-upload input {
+.file-upload-btn input {
     display: none;
+}
+
+.file-upload-btn:hover {
+    background-color: #2196F3;
+    color: #e0ecff;
+    transform: scale(1.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .dialog-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 1rem;
-    margin-top: 1rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 1rem;
+    }
+
+    .main-content {
+        padding: 1.5rem;
+    }
+
+    .form-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-item label {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .action-buttons {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .avatar-dialog :deep(.el-dialog) {
+        width: 90%;
+    }
+
+    .avatar-preview {
+        width: 150px;
+        height: 150px;
+    }
 }
 </style>
