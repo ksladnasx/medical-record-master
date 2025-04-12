@@ -22,6 +22,7 @@ export default defineComponent({
         // 多定义一个inpvals的原因是按钮的激活判断inpval == showPage，如果直接给输入框绑定inpval会导致用户没有点击跳转按钮就使得按钮因为输入的数据实时变化而激活，
         // 所以要多定义一个变量用于存输入的内容，在需要变化inpval 的时候再变化
         const inpvals = ref('');
+        const totalNum = ref(0)
 
         // 控制操作下拉菜单的显示
         const showActionMenu = ref<number | null>(null);
@@ -31,7 +32,7 @@ export default defineComponent({
             return filteredFiles.value.slice(start, start + pageSize);
         });
 
-        const totalPages = ref(100)
+        const totalPages = ref(1)
 
 
 
@@ -61,6 +62,7 @@ export default defineComponent({
                 filteredFiles.value = res.data.data.data
                 console.log(filteredFiles.value)
                 totalPages.value = res.data.data.totalPage
+                totalNum.value = res.data.data.totalNum
             } catch (e) {
                 console.error(e)
             }
@@ -357,7 +359,7 @@ export default defineComponent({
 
                 filteredFiles.value = res.data.data.data
                 totalPages.value = res.data.data.totalPage
-
+                totalNum.value = res.data.data.totalNum
 
             } catch (e) {
                 ElMessage.error("网络请求失败")
@@ -406,7 +408,8 @@ export default defineComponent({
             // 图标导入了之后一定要记得从script标签中暴露出来
             Search,
             pageSize,
-            updatePage
+            updatePage,
+            totalNum
         };
     },
 });
@@ -440,7 +443,7 @@ export default defineComponent({
                                 <el-icon><DocumentCopy /></el-icon>
                             </div>
                             <div class="stat-content">
-                                <div class="stat-value">{{ totalPages * pageSize }}</div>
+                                <div class="stat-value">{{ totalNum }}</div>
                                 <div class="stat-label">总文件数</div>
                             </div>
                         </div>
@@ -617,8 +620,10 @@ export default defineComponent({
             </div>
 
             <!-- 分页区域 -->
+            <!-- 分页区域 -->
             <div class="pagination-section">
-                <!-- [保持原有分页代码不变] -->
+                <el-pagination v-model:current-page="currentPage" :page-size="pageSize" :total="totalPages * pageSize"
+                    layout="prev, pager, next, jumper" background class="custom-pagination" />
             </div>
         </div>
     </div>
@@ -1245,6 +1250,15 @@ export default defineComponent({
 .menu-item.download {
     color: #9c27b0;
 }
+
+/* 分页区域样式 */
+.pagination-section{
+    display: flex;
+    align-self: center;
+    justify-self: center;
+    padding-bottom: 1.5rem;
+}
+
 
 /* 响应式设计 */
 @media (max-width: 1024px) {

@@ -40,8 +40,8 @@ export default defineComponent({
             const start = (currentPage.value - 1) * pageSize;
             return filteredTemplates.value.slice(start, start + pageSize);
         });
-
-        const totalPages = ref(100)
+        const totalNum = ref(0)
+        const totalPages = ref(1)
         onMounted(async () => {
             const userStore = useUserStore();
             userId.value = userStore.$state.userInfo?.id
@@ -65,6 +65,7 @@ export default defineComponent({
                 filteredTemplates.value = res.data.data.data
                 console.log(filteredTemplates.value)
                 totalPages.value = res.data.data.totalPage
+                totalNum.value = res.data.data.totalNum
             } catch (e) {
                 console.error(e)
             }
@@ -103,7 +104,7 @@ export default defineComponent({
                 }
                 filteredTemplates.value = res.data.data.data;
                 totalPages.value = res.data.data.totalPage;
-
+                totalNum.value = res.data.data.totalNum
 
 
             } catch (e) {
@@ -468,7 +469,7 @@ export default defineComponent({
             viewFileDetails,
             deleteFile,
             downloadFile,
-            renameFile, Search, useUserStore, DArrowRight, pageSize, updatePage
+            renameFile, Search, useUserStore, DArrowRight, pageSize, updatePage,totalNum
         };
     },
 });
@@ -506,7 +507,7 @@ export default defineComponent({
                                 </el-icon>
                             </div>
                             <div class="stat-content">
-                                <div class="stat-value">{{ totalPages * pageSize }}</div>
+                                <div class="stat-value">{{ totalNum }}</div>
                                 <div class="stat-label">总模板数</div>
                             </div>
                         </div>
@@ -603,7 +604,7 @@ export default defineComponent({
                             <template #default="{ row }">
                                 <div class="author-cell">
                                     <el-avatar :size="28" class="author-avatar">{{ row.authorName.charAt(0)
-                                        }}</el-avatar>
+                                    }}</el-avatar>
                                     <span class="author-name">{{ row.authorName.slice(1) }}</span>
                                 </div>
                             </template>
@@ -688,7 +689,8 @@ export default defineComponent({
 
             <!-- 分页区域 -->
             <div class="pagination-section">
-                <!-- [保持原有分页代码不变] -->
+                <el-pagination v-model:current-page="currentPage" :page-size="pageSize" :total="totalPages * pageSize"
+                    layout="prev, pager, next, jumper" background class="custom-pagination" />
             </div>
         </div>
     </div>
@@ -1363,6 +1365,14 @@ export default defineComponent({
 
 .reset-btn:active {
     transform: translateY(0);
+}
+
+/* 分页区域样式 */
+.pagination-section{
+    display: flex;
+    align-self: center;
+    justify-self: center;
+    padding-bottom: 1.5rem;
 }
 
 /* 响应式调整 */
