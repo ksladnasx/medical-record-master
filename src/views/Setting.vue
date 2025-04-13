@@ -302,6 +302,12 @@ const uploadAvatar = async () => {
 </template>
 
 <style scoped>
+/* 让按钮点击后不产生黑边 */
+button {
+  outline: none;
+}
+
+
 /* 全局样式 */
 .settings-container {
     min-height: 100vh;

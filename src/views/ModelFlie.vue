@@ -697,6 +697,12 @@ export default defineComponent({
 </template>
 
 <style scoped>
+/* 让按钮点击后不产生黑边 */
+button {
+  outline: none;
+}
+
+
 .template-management {
     min-height: 100vh;
     padding: 2rem;

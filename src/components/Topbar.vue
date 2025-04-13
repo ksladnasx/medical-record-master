@@ -28,10 +28,13 @@ const hiddenSidebar = () => {
     useUserStore().shouldShow = !useUserStore().shouldShow;
 };
 
+const isFullScreen =ref(false);
 const FullScreens = () => {
     if (document.fullscreenElement) {
+        isFullScreen.value = false;
         document.exitFullscreen();
     } else {
+        isFullScreen.value = true;
         document.documentElement.requestFullscreen();
     }
 };
@@ -96,7 +99,7 @@ const FullScreens2 = () => {
                     </button>
                 </el-tooltip>
 
-                <el-tooltip effect="dark" content="全屏" placement="bottom">
+                <el-tooltip effect="dark" :content=" isFullScreen?'退出全屏':'全屏' "  placement="bottom">
                     <button class="action-btn" @click="FullScreens">
                         <el-icon :size="18">
                             <FullScreen />
@@ -136,6 +139,10 @@ const FullScreens2 = () => {
 </template>
 
 <style scoped>
+/* 让按钮点击后不产生黑边 */
+button {
+  outline: none;
+}
 /* 基础样式 */
 .topbar-container {
     position: relative;

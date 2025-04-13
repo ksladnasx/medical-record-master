@@ -630,6 +630,12 @@ export default defineComponent({
 </template>
 
 <style scoped>
+/* 让按钮点击后不产生黑边 */
+button {
+  outline: none;
+}
+
+
 /* 与模板管理页面相同的全局样式 */
 .file-management {
     min-height: 100vh;

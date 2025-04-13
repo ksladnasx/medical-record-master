@@ -199,6 +199,12 @@ const handleSubmit = async () => {
 </template>
 
 <style scoped>
+/* 让按钮点击后不产生黑边 */
+button {
+  outline: none;
+}
+
+
 .create-container {
   min-height: 80vh;
   display: flex;
