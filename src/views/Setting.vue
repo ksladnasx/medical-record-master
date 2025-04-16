@@ -214,7 +214,7 @@ const uploadAvatar = async () => {
                     <div class="form-item">
                         <label>用户名</label>
                         <div class="form-content">
-                            <el-input v-if="isEditing" v-model="userInfo.userName" clearable class="form-input" />
+                            <el-input v-if="isEditing" v-model="userInfo.userName" :clearable="true" class="form-input" />
                             <span v-else class="form-value">{{ userInfo.userName }}</span>
                         </div>
                     </div>
@@ -222,7 +222,7 @@ const uploadAvatar = async () => {
                     <div class="form-item">
                         <label>所属组织</label>
                         <div class="form-content">
-                            <el-input v-if="isEditing" v-model="userInfo.organization" clearable class="form-input" />
+                            <el-input v-if="isEditing" v-model="userInfo.organization" :clearable="true" class="form-input" />
                             <span v-else class="form-value">{{ userInfo.organization }}</span>
                         </div>
                     </div>

@@ -120,15 +120,20 @@ export default defineComponent({
         }
 
         const applyFilters = () => {
+           try{
             if (isEmpty()) {
                 updatePage(currentPage.value, pageSize)
             }
-            if (filters.value.id || filters.value.author || filters.value.category || filters.value.modifyDate || filters.value.templateName) {
+            else if (filters.value.id || filters.value.author || filters.value.category || filters.value.modifyDate || filters.value.templateName) {
                 console.log(filters.value)
                 updatePage(currentPage.value, pageSize, Number(filters.value.id), filters.value.templateName, filters.value.author, filters.value.category, customParse(filters.value.modifyDate))
             }
 
             currentPage.value = 1;
+            ElMessage.success('获取数据成功！')
+            }catch{
+                ElMessage.error('获取数据失败！')
+            }
         };
 
         const isEmpty = () => {
@@ -528,20 +533,20 @@ export default defineComponent({
                 <div class="filter-grid">
                     <div class="filter-item">
                         <label>ID</label>
-                        <el-input v-model="filters.id" placeholder="输入ID" clearable="true" class="filter-input" />
+                        <el-input v-model="filters.id" placeholder="输入ID":clearable="true" class="filter-input" />
                     </div>
                     <div class="filter-item">
                         <label>模板名称</label>
-                        <el-input v-model="filters.templateName" placeholder="输入模板名称" clearable="true"
+                        <el-input v-model="filters.templateName" placeholder="输入模板名称" :clearable="true"
                             class="filter-input" />
                     </div>
                     <div class="filter-item">
                         <label>作者</label>
-                        <el-input v-model="filters.author" placeholder="输入作者" clearable="true" class="filter-input" />
+                        <el-input v-model="filters.author" placeholder="输入作者" :clearable="true" class="filter-input" />
                     </div>
                     <div class="filter-item">
                         <label>类别</label>
-                        <el-select v-model="filters.category" clearable="true" placeholder="选择类别" class="filter-select">
+                        <el-select v-model="filters.category" :clearable="true" placeholder="选择类别" class="filter-select">
                             <el-option label="a类" value="a类" />
                             <el-option label="b类" value="b类" />
                         </el-select>
@@ -571,7 +576,7 @@ export default defineComponent({
                     <h3 class="table-title">模板列表</h3>
                     <div class="table-actions">
                         <el-tooltip content="刷新数据" placement="top">
-                            <el-button circle @click="updatePage(currentPage, pageSize)">
+                            <el-button circle @click="applyFilters" >
                                 <el-icon>
                                     <Refresh />
                                 </el-icon>

@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue';
+// import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import axiosService from "../utils/axios-test"
 import { TemplateFile } from '../types/types';
 import { DocumentAdd } from '@element-plus/icons-vue';
 
+// const router = useRouter();
 const fileName = ref('');
 const templateId = ref('');
+// 2. 创建axios实例（网页5/网页9）
+
+
+// 3. 响应式数据
 const options = ref<TemplateFile[]>([])
 const currentPage = ref(1)
 const loading = ref(false)
 const hasMore = ref(true)
 
+// 4. 数据获取方法（网页6/网页9）
 const fetchData = async (page: number) => {
   try {
     const response = await axiosService.post("/api/template/page", {
@@ -25,6 +32,7 @@ const fetchData = async (page: number) => {
   }
 }
 
+// 5. 初始化加载（网页7）
 const loadFirstPage = async () => {
   if (options.value.length > 0 || loading.value) return
 
@@ -32,12 +40,15 @@ const loadFirstPage = async () => {
   options.value = await fetchData(10)
   currentPage.value = 2
   loading.value = false
+  console.log(options.value)
 }
 
+// 6. 滚动处`理
 const handleScroll = async (e: Event) => {
   const target = e.target as HTMLSelectElement
   const { scrollTop, scrollHeight, clientHeight } = target
 
+  // 滚动到底部阈值判断（距底部50px触发）
   if (scrollHeight - (scrollTop + clientHeight) < 50
     && !loading.value
     && hasMore.value
@@ -46,7 +57,7 @@ const handleScroll = async (e: Event) => {
     const newData = await fetchData(currentPage.value)
 
     options.value = [...options.value, ...newData]
-    hasMore.value = newData.length >= 10
+    hasMore.value = newData.length >= 10 // 根据实际接口调整
     currentPage.value++
     loading.value = false
   }
@@ -75,19 +86,34 @@ const handleSubmit = async () => {
     if (!fileUrl) {
       const fileResponse = await axiosService.get(`/api/template/download/${templateId.value}`);
       if (fileResponse.data.code === 200) {
-        const fileUrl = fileResponse.data.data;
-        localStorage.setItem(`fileUrl_${templateId.value}`, fileUrl);
+        fileUrl = fileResponse.data.data;
+        localStorage.setItem(`fileUrl_${templateId.value}`, fileUrl || '');
       } else {
         ElMessage.error('获取文件 URL 失败');
         return;
       }
     }
 
+    const fullFileName = fileName.value + typename;
+
+    // 存入本地映射
     const fileMappings = JSON.parse(localStorage.getItem('fileMappings') || '{}');
-    fileMappings[caseId] = { templateId: templateId.value, fileName: fileName.value + typename, fileUrl };
+    fileMappings[caseId] = { templateId: templateId.value, fileName: fullFileName, fileUrl };
     localStorage.setItem('fileMappings', JSON.stringify(fileMappings));
 
-    window.location.href = "/filemanage";
+    // 存入localStorage缓存
+    localStorage.setItem('currentFileData', JSON.stringify({
+      templateId: templateId.value,
+      caseId,
+      fileName: fullFileName,
+      fileUrl
+    }));
+
+    // 跳转到文件编辑页面
+    const encodedFileName = encodeURIComponent(fullFileName);
+    const encodedFileUrl = encodeURIComponent(fileUrl || '');
+    window.location.href = `/FileEditor?caseId=${caseId}&fileName=${encodedFileName}&fileUrl=${encodedFileUrl}`;
+
     ElMessage.success('文件创建成功');
   } catch (e) {
     console.error(e);
@@ -95,6 +121,11 @@ const handleSubmit = async () => {
   }
 };
 
+
+
+
+
+// 7. 生命周期管理（网页3）
 onMounted(() => {
   const selectEl = document.querySelector('select')
   selectEl?.addEventListener('scroll', handleScroll)
@@ -152,7 +183,7 @@ onBeforeUnmount(() => {
           <el-input 
             v-model="fileName" 
             placeholder="请输入文件名称" 
-             clearable="true"
+             :clearable="true"
             class="file-input"
           />
         </div>

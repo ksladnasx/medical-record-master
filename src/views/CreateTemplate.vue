@@ -157,7 +157,7 @@ const handleSubmit = async () => {
 
         <div class="form-group">
           <label>模板名称 <span class="required">*</span></label>
-          <el-input v-model="templateName" placeholder="请输入模板名称" clearable="true" class="template-input" maxlength="50"
+          <el-input v-model="templateName" placeholder="请输入模板名称" :clearable="true"  class="template-input" maxlength="50"
             show-word-limit />
         </div>
 

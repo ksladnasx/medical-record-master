@@ -22,7 +22,6 @@ export default defineComponent({
         // 多定义一个inpvals的原因是按钮的激活判断inpval == showPage，如果直接给输入框绑定inpval会导致用户没有点击跳转按钮就使得按钮因为输入的数据实时变化而激活，
         // 所以要多定义一个变量用于存输入的内容，在需要变化inpval 的时候再变化
         const inpvals = ref('');
-        const totalNum = ref(0)
 
         // 控制操作下拉菜单的显示
         const showActionMenu = ref<number | null>(null);
@@ -32,8 +31,8 @@ export default defineComponent({
             return filteredFiles.value.slice(start, start + pageSize);
         });
 
-        const totalPages = ref(1)
-
+        const totalPages = ref(100)
+        const totalNum = ref()
 
 
         const filters = ref({
@@ -87,27 +86,23 @@ export default defineComponent({
 
         const applyFilters = () => {
             // console.log(filters.value)
-            if (isEmpty()) {
+            try{
+                if(filters.value.id == '' && filters.value.author == '' && filters.value.filename == '' && filters.value.templateName == '' && filters.value.modifyDate == '') {
                 updatePage(currentPage.value, pageSize)
             }
-            if (filters.value.id || filters.value.author || filters.value.filename || filters.value.templateName || filters.value.modifyDate) {
+            else if (filters.value.id || filters.value.author || filters.value.filename || filters.value.templateName || filters.value.modifyDate) {
                 console.log(filters.value)
                 updatePage(currentPage.value, pageSize, Number(filters.value.id), filters.value.filename, filters.value.templateName, filters.value.author, customParse(filters.value.modifyDate))
             }
-
-
             // filteredFiles.value = result;
             currentPage.value = 1;
-        };
-        const isEmpty = () => {
-            if (filters.value.id == '' && filters.value.author == '' && filters.value.filename == '' && filters.value.templateName == '' && filters.value.modifyDate == '') {
-                return true
-            } else {
-                return false
+            ElMessage.success('获取数据成功！')
+            }catch{
+                ElMessage.error('获取数据失败！')
             }
-        }
-        const resetFilters = () => {
+        };
 
+        const resetFilters = () => {
             filters.value = {
                 id: '',
                 filename: '',
@@ -344,7 +339,7 @@ export default defineComponent({
             if (fuzzyFileName && fuzzyFileName != "") configData.fuzzyFileName = fuzzyFileName;
             if (authorName && authorName != '') configData.authorName = authorName;
             if (fuzzyTemplateName && fuzzyTemplateName != '') configData.fuzzyTemplateName = fuzzyTemplateName;
-            if (updateTimeStart) configData.timeRange = { beginTimeMs: updateTimeStart, endTimeMs: updateTimeStart + 86400000 };
+            if (updateTimeStart) configData.timeRange = {beginTimeMs:updateTimeStart, endTimeMs: updateTimeStart+86400000};
             console.log("请求的数据：")
             console.log(configData)
 
@@ -360,6 +355,7 @@ export default defineComponent({
                 filteredFiles.value = res.data.data.data
                 totalPages.value = res.data.data.totalPage
                 totalNum.value = res.data.data.totalNum
+
 
             } catch (e) {
                 ElMessage.error("网络请求失败")
@@ -405,16 +401,14 @@ export default defineComponent({
             prevPage,
             nextPage,
             userId,
-            // 图标导入了之后一定要记得从script标签中暴露出来
             Search,
-            pageSize,
+            totalNum,
             updatePage,
-            totalNum
+            pageSize
         };
     },
 });
 </script>
-
 
 <template>
     <div class="file-management">
@@ -464,19 +458,19 @@ export default defineComponent({
                 <div class="filter-grid">
                     <div class="filter-item">
                         <label>ID</label>
-                        <el-input v-model="filters.id" placeholder="输入ID" clearable="true" class="filter-input" />
+                        <el-input v-model="filters.id" placeholder="输入ID" :clearable="true" class="filter-input" />
                     </div>
                     <div class="filter-item">
                         <label>文档名称</label>
-                        <el-input v-model="filters.filename" placeholder="输入文档名称" clearable="true" class="filter-input" />
+                        <el-input v-model="filters.filename" placeholder="输入文档名称" :clearable="true" class="filter-input" />
                     </div>
                     <div class="filter-item">
                         <label>关联模板</label>
-                        <el-input v-model="filters.templateName" placeholder="输入模板名称" clearable="true" class="filter-input" />
+                        <el-input v-model="filters.templateName" placeholder="输入模板名称" :clearable="true" class="filter-input" />
                     </div>
                     <div class="filter-item">
                         <label>作者</label>
-                        <el-input v-model="filters.author" placeholder="输入作者" clearable="true" class="filter-input" />
+                        <el-input v-model="filters.author" placeholder="输入作者" :clearable="true" class="filter-input" />
                     </div>
                     <div class="filter-item">
                         <label>修改日期</label>
@@ -503,7 +497,7 @@ export default defineComponent({
                     <h3 class="table-title">文件列表</h3>
                     <div class="table-actions">
                         <el-tooltip content="刷新数据" placement="top">
-                            <el-button circle @click="updatePage(currentPage, pageSize)">
+                            <el-button circle @click="applyFilters">
                                 <el-icon>
                                     <Refresh />
                                 </el-icon>
