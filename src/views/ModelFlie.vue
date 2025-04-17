@@ -37,8 +37,8 @@ export default defineComponent({
         const inpvals = ref('');
 
         const paginatedTemplates = computed(() => {
-            const start = (currentPage.value - 1) * pageSize;
-            return filteredTemplates.value.slice(start, start + pageSize);
+            
+            return filteredTemplates.value;
         });
         const totalNum = ref(0)
         const totalPages = ref(1)
@@ -77,6 +77,7 @@ export default defineComponent({
                 currentPage,
                 pageSize
             };
+            console.log("函数被调用了：",configData)
 
             // 检查每个可选参数是否被传入，如果传入则添加到 configData
             if (id && id != 0) configData.id = id;

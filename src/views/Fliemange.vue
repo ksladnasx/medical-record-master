@@ -27,8 +27,7 @@ export default defineComponent({
         const showActionMenu = ref<number | null>(null);
 
         const paginatedTemplates = computed(() => {
-            const start = (currentPage.value - 1) * pageSize;
-            return filteredFiles.value.slice(start, start + pageSize);
+            return filteredFiles.value;
         });
 
         const totalPages = ref(100)
