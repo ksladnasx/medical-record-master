@@ -77,7 +77,6 @@ export default defineComponent({
                 currentPage,
                 pageSize
             };
-            console.log("函数被调用了：",configData)
 
             // 检查每个可选参数是否被传入，如果传入则添加到 configData
             if (id && id != 0) configData.id = id;
@@ -534,7 +533,7 @@ export default defineComponent({
                 <div class="filter-grid">
                     <div class="filter-item">
                         <label>ID</label>
-                        <el-input v-model="filters.id" placeholder="输入ID":clearable="true" class="filter-input" />
+                        <el-input v-model="filters.id" placeholder="输入ID" :clearable="true" class="filter-input" />
                     </div>
                     <div class="filter-item">
                         <label>模板名称</label>

@@ -98,7 +98,7 @@ router.beforeEach((to:any, _from:any, next:any) => {
   const isAuthenticated = localStorage.getItem('user');
   
   // 不需要身份验证的路由
-  const publicRoutes = ['Login', 'Register', 'ForgotPassword','Email',"Wrong"]; //这里必须填路由的name
+  const publicRoutes = ['Login', 'Register', 'ForgotPassword','Email',"Wrong",'Permissions']; //这里必须填路由的name
   
   if (!publicRoutes.includes(to.name as string) && !isAuthenticated) {
     NProgress.start();

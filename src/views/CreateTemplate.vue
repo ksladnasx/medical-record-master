@@ -283,6 +283,7 @@ button {
   padding-bottom:1rem;
   padding-left: 1rem;
   padding-right: 1rem ;
+  margin-top: 15px;
 }
 
 .form-group {
@@ -315,11 +316,12 @@ button {
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 180px;
+  height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #fafafa;
+
 }
 
 .upload-area.dragging {

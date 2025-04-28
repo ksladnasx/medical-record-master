@@ -2,11 +2,11 @@
   <div style="display: flex;width: 100%;height: 100%;background-color: #eff3fd;">
     <div id="app2">
       <button @click="back"
-        style="border-color: black;height: 35px;position: absolute;margin-top: 10px;z-index: 10;margin-left: 360px;width: 70px;">
+        style="border-color: black;height: 35px;position: absolute;margin-top: 10px;z-index: 10;margin-left: 380px;width: 70px;">
         <p style="margin-top: -4px;font-size: 14px;">返回</p>
       </button>
       <button @click="exportToWord"
-        style="position: absolute;margin-top: 10px;z-index: 10;margin-left: 450px;border-color: black;height: 35px;font-size: 14px;padding: 0px 12px;width: 98px;">导出并保存</button>
+        style="position: absolute;margin-top: 10px;z-index: 10;margin-left: 471px;border-color: black;height: 35px;font-size: 14px;padding: 0px 12px;width: 98px;">导出并保存</button>
       <textarea id="editor" v-model="form.content"></textarea>
     </div>
 
@@ -15,10 +15,10 @@
       marginLeft: isFolded ? '1130px' : '1130px',
       marginTop: '20px',
       transition: 'all 0.3s ease'
-    }" class="aicontainer" v-if="!isFolded" >
-      <div class="ai-container" >
+    }" class="aicontainer" v-if="!isFolded">
+      <div class="ai-container">
         <!-- 顶部栏 -->
-        <div class="top-bar" >
+        <div class="top-bar">
           <div class="ai-icon"><img src="../assets/ai.png" alt="" style="width: 32px;"></div>
           <div class="ai-name">MediWrite病历智联笔</div>
           <!-- 折叠按钮 -->
@@ -54,10 +54,10 @@
           </div>
         </div>
         <!-- 底部输入框 -->
-        <div class="bottom-bar" id="input-with-button">
+        <!-- <div class="bottom-bar" id="input-with-button">
           <input type="text" placeholder="有什么问题需要智联笔帮忙？" v-model="userInput" @keyup.enter="handleUserInput">
           <button @click="handleUserInput" class="sendbutton">发送</button>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -96,16 +96,16 @@ export default defineComponent({
       if (editor) {
         const editorContainer = editor.getContainer();
         if (editorContainer) {
-          editorContainer.style.width = isFolded.value ? '143%' : '103%';
+          editorContainer.style.width = isFolded.value ? '143%' : '105%';
         }
       }
       const backButton = document.querySelector('#app2 button:nth-child(1)');
       const exportButton = document.querySelector('#app2 button:nth-child(2)');
       if (backButton) {
-        backButton.style.marginLeft = isFolded.value ? '790px' : '360px';
+        backButton.style.marginLeft = isFolded.value ? '790px' : '380px';
       }
       if (exportButton) {
-        exportButton.style.marginLeft = isFolded.value ? '870px' : '450px';
+        exportButton.style.marginLeft = isFolded.value ? '870px' : '471px';
       }
     };
 
@@ -135,20 +135,7 @@ export default defineComponent({
     const saveMessages = () => {
       localStorage.setItem('aiChatHistory', JSON.stringify(messages));
     };
-    // 监听消息更新并自动滚动到底部
-    watch(messages, () => {
-      nextTick(() => {
-        scrollToBottom();
-      });
-    }, { deep: true });
 
-    // 滚动到底部的函数
-    const scrollToBottom = () => {
-      const contentContainer = document.querySelector('.content-container');
-      if (contentContainer) {
-        contentContainer.scrollTop = contentContainer.scrollHeight;
-      }
-    };
     // 页面加载时清空聊天记录
     onMounted(() => {
       // 清空 messages 数组
@@ -156,8 +143,8 @@ export default defineComponent({
       scrollToBottom();
     });
 
-     // 用户发送消息
-     const handleUserInput = (isClickInsert = false) => {
+    // 用户发送消息
+    const handleUserInput = (isClickInsert = false) => {
       if (!userInput.value.trim()) {
         console.warn("输入为空！");
         return;
@@ -175,114 +162,124 @@ export default defineComponent({
       userInput.value = '';
     };
 
-   //  AI 回复
- // AI 回复
-const generateMedicalRecord = async (content) => {
-  try {
-    isLoading.value = true;
+    const generateMedicalRecord = async (content) => {
+      try {
+        isLoading.value = true;
 
-    // 获取编辑器内容
-    const editor = window.tinymce.get("editor");
-    const editorContent = editor ? editor.getContent() : '';
+        // 获取编辑器内容
+        const editor = window.tinymce.get("editor");
+        const editorContent = editor ? editor.getContent() : '';
 
-    // 如果 content 未定义，使用编辑器内容
-    const textToSend = content !== undefined ? content : editorContent;
+        // 检查内容是否为空
+        const textToSend = content !== undefined ? content : editorContent;
+        if (!textToSend.trim()) throw new Error("文本内容不能为空");
 
-    // 添加加载状态到消息列表
-    messages.push({
-      type: 'ai',
-      text: '正在加载......'
-    });
+        // 创建枚举值映射
+        const enumMap = {
+          "现病史": "current_history",
+          "既往史": "recent_history",
+          "诊断": "diagnosis",
+          "建议": "advice",
+          "诊断": "initial_diagnosis",
+          "体格检查": "physical_examination",
+          "辅助检查": "investigations"
+        };
 
-    // 发送请求到 API
-    const response = await axiosService.post("/api/record/ai/generate", {
-      text: textToSend,
-    });
+        // 处理前两个字符
+        const firstTwoChars = textToSend.length >= 2
+          ? textToSend.substring(0, 2) === "现病史"
+            ? "现病史"
+            : textToSend.substring(0, 4) === "体格检查"
+              ? "体格检查"
+              : textToSend.substring(0, 4) === "辅助检查"
+                ? "辅助检查"
+                : textToSend.substring(0, 3) === "既往史"
+                  ? "既往史"
+                  : textToSend.substring(0, 2) === "诊断"
+                    ? "诊断"
+                    : textToSend.substring(0, 2) === "建议"
+                      ? "建议"
+                      : "现病史"
+          : "现病史";
+        console.log(firstTwoChars)
+        // 获取对应的枚举值
+        const textEnumValue = enumMap[firstTwoChars] || "current_history";
 
-    // 检查 aiTextList 是否存在且是数组
-    if (response.data.data && Array.isArray(response.data.data.aiTextList)) {
-      const aiTextList = response.data.data.aiTextList;
+        // 添加加载状态
+        messages.push({ type: 'ai', text: '正在加载......' });
 
-      // 如果 aiTextList 为空，显示错误消息
-      if (aiTextList.length === 0) {
-        if (messages.length > 0 && messages[messages.length - 1].type === 'ai') {
-          messages[messages.length - 1].text = 'AI 生成失败，请重试';
+        // 发送请求
+        const response = await axiosService.post("/api/record/ai/generate", {
+          text: textToSend,
+          textEnum: textEnumValue // 使用枚举值
+        });
+
+        // 校验 API 响应
+        if (!response.data.data || !Array.isArray(response.data.data.aiTextList)) {
+          throw new Error("API 返回格式错误");
         }
-      } else {
-        // 如果 aiTextList 有多个条目，逐条添加到 messages
-        if (messages.length > 0 && messages[messages.length - 1].type === 'ai') {
-          // 移除最后一条加载消息
+
+        const aiTextList = response.data.data.aiTextList;
+        if (aiTextList.length === 0) {
+          throw new Error("AI 生成失败，请重试");
+        }
+
+        // 更新消息列表
+        const updateLastMessage = (text) => {
+          if (messages.length > 0 && messages[messages.length - 1].type === 'ai') {
+            messages[messages.length - 1].text = text;
+          }
+        };
+
+        // 清除加载状态
+        if (messages[messages.length - 1].text === '正在加载......') {
           messages.pop();
         }
 
-        aiTextList.forEach((item, index) => {
-          messages.push({
-            type: 'ai',
-            text: item,
-          });
-
-          // 如果是最后一条，保存到 localStorage
-          if (index === aiTextList.length - 1) {
-            saveMessages();
-          }
+        // 添加 AI 生成内容
+        aiTextList.forEach(item => {
+          messages.push({ type: 'ai', text: item });
+          saveMessages(); // 每次更新后保存
         });
+
+      } catch (error) {
+        console.error("病历生成失败:", error);
+        const userErrorMessage = error.response?.data?.message || "请求错误，请重新尝试";
+        if (messages.length > 0 && messages[messages.length - 1].type === 'ai') {
+          messages[messages.length - 1].text = userErrorMessage;
+        }
+      } finally {
+        isLoading.value = false;
       }
-    } else {
-      // 如果 aiTextList 不是数组，显示错误消息
-      if (messages.length > 0 && messages[messages.length - 1].type === 'ai') {
-        messages[messages.length - 1].text = 'AI 生成失败，请重试';
+    };
+
+    // 滚动到底部的函数
+    const scrollToBottom = () => {
+      const contentContainer = document.querySelector('.content-container');
+      if (contentContainer) {
+        contentContainer.scrollTop = contentContainer.scrollHeight;
       }
-    }
-  } catch (error) {
-    console.error("病历生成失败:", error);
-    // 更新最后一条消息为错误提示
-    if (messages.length > 0 && messages[messages.length - 1].type === 'ai') {
-      messages[messages.length - 1].text = '请求错误，请重新尝试';
-    }
-  } finally {
-    isLoading.value = false;
-  }
-};
+    };
 
-     
-    //模拟 AI 回复
-    // const generateMedicalRecord = async (content) => {
-    //   try {
-    //     isLoading.value = true;
-
-    //     // 添加加载状态到消息列表
-    //     messages.push({
-    //       type: 'ai',
-    //       text: '正在加载......'
-    //     });
-
-    //     // 模拟 API 调用
-    //     setTimeout(() => {
-    //       // 更新最后一条消息为模拟数据
-    //       if (messages.length > 0 && messages[messages.length - 1].type === 'ai') {
-    //         messages[messages.length - 1].text = content;
-    //       }
-
-    //       // 保存到 localStorage
-    //       saveMessages();
-    //       isLoading.value = false;
-    //     }, 1500);
-    //   } catch (error) {
-    //     console.error("病历生成失败:", error);
-    //     // 更新最后一条消息为错误提示
-    //     if (messages.length > 0 && messages[messages.length - 1].type === 'ai') {
-    //       messages[messages.length - 1].text = '请求错误，请重新尝试';
-    //     }
-    //     isLoading.value = false;
-    //   }
-    // };
-     
-     const handleRecordClick = (index) => {
+    // 监听消息更新并自动滚动到底部
+    watch(messages, () => {
+      nextTick(() => {
+        scrollToBottom();
+      });
+    }, { deep: true });
+    //点击粘贴
+    const handleRecordClick = (index) => {
       const editor = window.tinymce.get("editor");
       if (editor) {
         try {
+          // 获取AI生成的文本
+          const aiText = messages[index].text;
+
+          // 删除“主诉”或“现病史”后面的所有内容
+          const cleanedText = aiText.replace(/(主诉|现病史).*/, '$1');
+
           editor.focus();
-          editor.insertContent(messages[index].text + "<br>");
+          editor.insertContent(cleanedText + "<br>");
           const selection = editor.selection;
           selection.collapse(false);
         } catch (e) {
@@ -292,7 +289,7 @@ const generateMedicalRecord = async (content) => {
 
       // 禁用 generateMedicalRecord
       canGenerateMedicalRecord.value = false;
-      
+
       // 3秒后恢复 generateMedicalRecord
       setTimeout(() => {
         canGenerateMedicalRecord.value = true;
@@ -303,9 +300,12 @@ const generateMedicalRecord = async (content) => {
     const setupEditorListener = (editor) => {
       let debounceTimer = null;
       let lastCursorPos;
+
       // 监听光标位置变化
       editor.on("click keyup", (e) => {
-        lastCursorPos = editor.selection.getRng();
+        if (editor.selection && editor.selection.getRng) {
+          lastCursorPos = editor.selection.getRng();
+        }
       });
 
       // 监听内容变化
@@ -315,11 +315,35 @@ const generateMedicalRecord = async (content) => {
           if (canGenerateMedicalRecord.value) {
             const currentNode = editor.selection.getNode();
             const currentText = extractCurrentSectionContent(currentNode);
-            generateMedicalRecord(currentText);
-            // generateMedicalRecord(mockData[0]); // 页面监听时返回第一条数据
+
+            // 判断光标是否在“主诉”或“现病史”后面
+            if (isCursorAfterKeywords(editor, currentNode, ["现病史", "既往史", "诊断", "建议", "体格检查", "辅助检查"])) {
+              generateMedicalRecord(currentText);
+            }
           }
         }, 3000);
       });
+    };
+
+    // 判断光标是否在指定关键词后面
+    const isCursorAfterKeywords = (editor, node, keywords) => {
+      if (!editor || !editor.selection || !editor.selection.getRng) {
+        return false; // 如果 editor 或 selection 不存在，直接返回 false
+      }
+
+      const textContent = node.textContent;
+      const selectionRange = editor.selection.getRng();
+      const lastCursorPos = selectionRange.startOffset;
+
+      // 遍历关键词，检查光标是否在关键词后面
+      for (const keyword of keywords) {
+        const keywordIndex = textContent.indexOf(keyword);
+        if (keywordIndex !== -1 && lastCursorPos > keywordIndex + keyword.length) {
+          return true;
+        }
+      }
+
+      return false;
     };
 
     // 提取当前部分的文本内容
@@ -378,7 +402,7 @@ const generateMedicalRecord = async (content) => {
             selector: '#editor',
             license_key: 'gpl',
             language: 'zh_CN',
-            width: '103%',
+            width: '105%',
             height: '700px',
             menubar: true,
             statusbar: true,
@@ -463,7 +487,6 @@ const generateMedicalRecord = async (content) => {
         htmlContent.value = processedHtml;
         fileContent.value = processedHtml; // 缓存 HTML
         console.log("转换后的 HTML:", processedHtml);
-
       } catch (err) {
         console.error("文档转换失败:", err);
       }
@@ -559,6 +582,7 @@ const generateMedicalRecord = async (content) => {
   }
 });
 </script>
+
 
 
 
